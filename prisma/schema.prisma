@@ -1,0 +1,196 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  trips         Trip[]
+  sessions      Session[]
+  searches      SearchHistory[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  AGENT
+  ADMIN
+}
+
+// Session model for tracking user sessions
+model Session {
+  id            String    @id @default(cuid())
+  userId        String
+  token         String    @unique
+  refreshToken  String    @unique
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+// Trip model
+model Trip {
+  id            String    @id @default(cuid())
+  userId        String
+  name          String
+  destination   String
+  startDate     DateTime
+  endDate       DateTime
+  travelers     Int       @default(1)
+  budget        Float?
+  status        TripStatus @default(DRAFT)
+  preferences   Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         TripItem[]
+  
+  @@map("trips")
+}
+
+enum TripStatus {
+  DRAFT
+  PLANNED
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+// Trip items (hotels, flights, activities, etc.)
+model TripItem {
+  id            String    @id @default(cuid())
+  tripId        String
+  type          ItemType
+  name          String
+  details       Json
+  cost          Float?
+  currency      String    @default("USD")
+  startDate     DateTime?
+  endDate       DateTime?
+  status        ItemStatus @default(PENDING)
+  bookingRef    String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  trip          Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  
+  @@map("trip_items")
+}
+
+enum ItemType {
+  HOTEL
+  FLIGHT
+  ACTIVITY
+  TRANSPORT
+  OTHER
+}
+
+enum ItemStatus {
+  PENDING
+  RESERVED
+  CONFIRMED
+  CANCELLED
+}
+
+// Search history
+model SearchHistory {
+  id            String    @id @default(cuid())
+  userId        String
+  query         String
+  destination   String?
+  checkIn       DateTime?
+  checkOut      DateTime?
+  guests        Int?
+  results       Json?
+  providers     String[]
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@map("search_history")
+}
+
+// Price alerts
+model PriceAlert {
+  id            String    @id @default(cuid())
+  userId        String
+  destination   String
+  checkIn       DateTime
+  checkOut      DateTime
+  targetPrice   Float
+  currentPrice  Float?
+  currency      String    @default("USD")
+  isActive      Boolean   @default(true)
+  notifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([destination, isActive])
+  @@map("price_alerts")
+}
+
+// Provider configuration
+model Provider {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  type          ProviderType
+  apiKey        String?
+  secret        String?
+  baseUrl       String?
+  isActive      Boolean   @default(true)
+  config        Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("providers")
+}
+
+enum ProviderType {
+  HOTEL
+  ACTIVITY
+  FLIGHT
+  TRANSPORT
+}
+
+// Cache entries
+model CacheEntry {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         Json
+  ttl           Int       // Time to live in seconds
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  
+  @@index([expiresAt])
+  @@map("cache_entries")
+}

@@ -1,0 +1,619 @@
+openapi: 3.0.3
+info:
+  title: Travel AI Agent System API
+  description: Enterprise Travel AI Agent Platform with multi-provider search orchestration
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@travelai.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+  - url: https://api.travelai.com/v1
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Auth
+    description: Authentication endpoints
+  - name: Search
+    description: Search endpoints
+  - name: Agents
+    description: Agent orchestration endpoints
+  - name: Trips
+    description: Trip management endpoints
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      version:
+                        type: string
+                      environment:
+                        type: string
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /search/hotels:
+    post:
+      tags: [Search]
+      summary: Search hotels
+      operationId: searchHotels
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelSearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /search/activities:
+    post:
+      tags: [Search]
+      summary: Search activities
+      operationId: searchActivities
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivitySearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /agents/process:
+    post:
+      tags: [Agents]
+      summary: Process a travel request
+      operationId: processRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRequest'
+      responses:
+        '200':
+          description: Request processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /agents/status:
+    get:
+      tags: [Agents]
+      summary: Get agent status
+      operationId: getAgentStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Agent status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentStatus'
+
+  /trips:
+    get:
+      tags: [Trips]
+      summary: Get user trips
+      operationId: getUserTrips
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, planned, booked, completed, cancelled]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: User trips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripsResponse'
+    post:
+      tags: [Trips]
+      summary: Create a new trip
+      operationId: createTrip
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTripRequest'
+      responses:
+        '201':
+          description: Trip created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+
+  /trips/{tripId}:
+    get:
+      tags: [Trips]
+      summary: Get trip by ID
+      operationId: getTripById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            token:
+              type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [user, agent, admin]
+
+    HotelSearchRequest:
+      type: object
+      required: [destination, checkIn, checkOut, guests]
+      properties:
+        destination:
+          type: string
+        checkIn:
+          type: string
+          format: date
+        checkOut:
+          type: string
+          format: date
+        guests:
+          type: integer
+          minimum: 1
+          maximum: 20
+        rooms:
+          type: integer
+          default: 1
+        budget:
+          type: number
+        preferences:
+          type: object
+          properties:
+            stars:
+              type: integer
+            amenities:
+              type: array
+              items:
+                type: string
+        sortBy:
+          type: string
+          enum: [price, rating, distance, popularity]
+          default: relevance
+
+    ActivitySearchRequest:
+      type: object
+      required: [destination, date, travelers]
+      properties:
+        destination:
+          type: string
+        date:
+          type: string
+          format: date
+        category:
+          type: string
+          enum: [adventure, cultural, relaxation, entertainment, nature]
+        travelers:
+          type: integer
+          minimum: 1
+          maximum: 20
+
+    SearchResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            results:
+              type: array
+              items:
+                $ref: '#/components/schemas/SearchResult'
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            hasMore:
+              type: boolean
+            providers:
+              type: array
+              items:
+                type: string
+            metadata:
+              type: object
+              properties:
+                searchTime:
+                  type: integer
+                cached:
+                  type: boolean
+
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [hotel, activity, flight]
+        price:
+          type: number
+        currency:
+          type: string
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        image:
+          type: string
+        provider:
+          type: string
+        availability:
+          type: boolean
+
+    AgentRequest:
+      type: object
+      required: [query, context]
+      properties:
+        query:
+          type: string
+        context:
+          type: object
+          properties:
+            userId:
+              type: string
+            tripId:
+              type: string
+            preferences:
+              type: object
+        agents:
+          type: array
+          items:
+            type: string
+        options:
+          type: object
+          properties:
+            parallel:
+              type: boolean
+              default: true
+            timeout:
+              type: integer
+              default: 30000
+
+    AgentResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+          enum: [completed, failed, timeout]
+        results:
+          type: object
+        metadata:
+          type: object
+          properties:
+            agentsUsed:
+              type: array
+              items:
+                type: string
+            duration:
+              type: integer
+            tokensUsed:
+              type: integer
+
+    AgentStatus:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [idle, busy, error]
+        lastActive:
+          type: string
+          format: date-time
+        taskCount:
+          type: integer
+        errorCount:
+          type: integer
+
+    CreateTripRequest:
+      type: object
+      required: [name, destination, startDate, endDate, travelers]
+      properties:
+        name:
+          type: string
+        destination:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        travelers:
+          type: integer
+          minimum: 1
+          maximum: 20
+        budget:
+          type: number
+        preferences:
+          type: object
+
+    TripResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Trip'
+
+    Trip:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        destination:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        travelers:
+          type: integer
+        budget:
+          type: number
+        status:
+          type: string
+          enum: [draft, planned, booked, completed, cancelled]
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TripItem'
+
+    TripItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [hotel, flight, activity, transport, other]
+        name:
+          type: string
+        details:
+          type: object
+        cost:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [pending, reserved, confirmed, cancelled]
+
+    TripsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            trips:
+              type: array
+              items:
+                $ref: '#/components/schemas/Trip'
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

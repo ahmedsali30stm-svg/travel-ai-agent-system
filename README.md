@@ -1,334 +1,211 @@
-# Enterprise Travel AI Agent Platform
+# Travel AI Agent System
 
-> A comprehensive multi-agent system for travel booking automation with AI-powered search, quotation generation, and browser automation.
-
----
+> Enterprise-grade multi-agent travel platform with AI-powered search, booking, and itinerary management.
 
 ## Overview
 
-This is a production-grade enterprise platform that orchestrates 25+ specialized AI agents to handle complete travel booking workflows—from initial client request through quotation delivery.
-
----
+The Travel AI Agent System is a comprehensive platform that uses multiple specialized AI agents to handle all aspects of travel planning, from searching for hotels and activities to generating complete itineraries and handling bookings.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                          ENTERPRISE TRAVEL AI AGENT PLATFORM                      │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐              │
-│  │   CLIENT LAYER  │───▶│  API GATEWAY    │───▶│  ORCHESTRATION  │              │
-│  │  Web/Mobile/API │    │  Rate Limiting  │    │  SUPERVISOR     │              │
-│  └─────────────────┘    │  Authentication │    │  AGENT          │              │
-│                          └─────────────────┘    └────────┬────────┘              │
-│                                                          │                       │
-│                    ┌─────────────────────────────────────┼──────────────┐       │
-│                    │                                     ▼              │       │
-│                    │  ┌─────────────────────────────────────────────┐   │       │
-│                    │  │            DOMAIN AGENTS LAYER              │   │       │
-│                    │  │                                             │   │       │
-│                    │  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │   │       │
-│                    │  │  │Hotel│ │Flight│ │Activ│ │Trans│ │Visa │ │   │       │
-│                    │  │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ │   │       │
-│                    │  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │   │       │
-│                    │  │  │Weather│Currency│Price│ │Valid│ │Rsrch│ │   │       │
-│                    │  │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ │   │       │
-│                    │  └─────────────────────────────────────────────┘   │       │
-│                    │                         │                          │       │
-│                    │                         ▼                          │       │
-│                    │  ┌─────────────────────────────────────────────┐   │       │
-│                    │  │              TOOL LAYER                     │   │       │
-│                    │  │  Hotelbeds │ Booking │ Viator │ Amadeus    │   │       │
-│                    │  └─────────────────────────────────────────────┘   │       │
-│                    └─────────────────────────────────────────────────────┘       │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         TRAVEL AI AGENT SYSTEM                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    AGENT ORCHESTRATION LAYER                        │    │
+│  │                                                                      │    │
+│  │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐       │    │
+│  │  │Supervisor │  │  Planner  │  │  Router   │  │  Session  │       │    │
+│  │  │  Agent    │  │   Agent   │  │   Agent   │  │  Manager  │       │    │
+│  │  └───────────┘  └───────────┘  └───────────┘  └───────────┘       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                      ↓                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                       CORE BOOKING LAYER                            │    │
+│  │                                                                      │    │
+│  │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐       │    │
+│  │  │  Hotel    │  │  Flight   │  │ Activities│  │Transport  │       │    │
+│  │  │  Agent    │  │   Agent   │  │   Agent   │  │  Agent    │       │    │
+│  │  └───────────┘  └───────────┘  └───────────┘  └───────────┘       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                      ↓                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                      INTELLIGENCE LAYER                             │    │
+│  │                                                                      │    │
+│  │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐       │    │
+│  │  │  Search   │  │  Price    │  │ Duplicate │  │  ranking  │       │    │
+│  │  │  Engine   │  │ Intelligence│ │ Detection │  │  Engine   │       │    │
+│  │  └───────────┘  └───────────┘  └───────────┘  └───────────┘       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                      ↓                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     PROVIDER INTEGRATION LAYER                      │    │
+│  │                                                                      │    │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐     │    │
+│  │  │Hotelbeds│ │ Booking │ │Expedia  │ │ Viator  │ │Amadeus  │     │    │
+│  │  │         │ │  .com   │ │         │ │         │ │         │     │    │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
-
----
 
 ## Features
 
-### Core Capabilities
-- **25 Specialized Agents** - Complete travel booking automation
-- **16 Integration Tools** - Hotel, flight, activity, and payment APIs
-- **120 Prompt Templates** - XML-formatted prompts for all agents
-- **Memory Engine** - Long-term, short-term, and session memory with synchronization
-- **Search Intelligence** - Multi-provider search with ranking, scoring, and deduplication
+### Multi-Agent System
+- **25 Specialized Agents** across 5 layers
+- **Parallel Execution** for faster results
+- **Error Recovery** with automatic retry and fallback
+- **Memory Persistence** across sessions
 
-### Rendering Engine
-- **HTML/CSS/JS Quotation Templates** - Professional, responsive designs
-- **PDF Generation** - Print-optimized quotation documents
-- **Dark Mode & RTL Support** - Full internationalization
-- **Interactive Demos** - Live preview capabilities
+### Search Intelligence
+- **12 Provider Integrations** (Hotelbeds, Booking.com, Expedia, Viator, etc.)
+- **Multi-factor Ranking** (price, rating, value, location)
+- **Duplicate Detection** with fuzzy and semantic matching
+- **Price Intelligence** with historical tracking and alerts
+- **3-Layer Caching** (memory, Redis, database)
 
 ### Browser Automation
-- **Enterprise Playwright Framework** - Production-ready web scraping
-- **Browser Pool Management** - Efficient instance recycling
-- **Proxy Rotation** - Intelligent proxy switching with health checks
-- **CAPTCHA Detection** - Support for 7+ CAPTCHA types
-- **Session Persistence** - Encrypted cookie/storage management
+- **Playwright Framework** for web scraping
+- **Browser Pool Management** with smart allocation
+- **Proxy Rotation** with health monitoring
+- **CAPTCHA Detection** for 7 types
+- **Session Persistence** with encryption
+
+### API & Integration
+- **RESTful API** with OpenAPI specification
+- **JWT Authentication** with role-based access
+- **Rate Limiting** and request throttling
+- **Comprehensive Error Handling**
 
 ### Infrastructure
-- **Multi-Environment Support** - Dev, staging, production configs
-- **Monitoring & Alerting** - Prometheus + Grafana dashboards
-- **Security Policies** - Comprehensive security guidelines
-- **Disaster Recovery** - Backup and recovery procedures
-
----
-
-## Project Structure
-
-```
-travel-ai-agent-system/
-├── AGENTS.md                    # 25 agents overview
-├── MEMORY.md                    # Memory engine design
-├── SYSTEM.md                    # System architecture
-├── RULES.md                     # 30 operational rules
-│
-├── playbooks/                   # 13 workflow files
-│   ├── WORKFLOW.md
-│   └── 01-12-*.md
-│
-├── runtime/                     # 20 agent specifications
-│   └── 01-20-*.md
-│
-├── tools/                       # 17 tool documentation
-│   ├── TOOL_LAYER.md
-│   └── 16 tool files
-│
-├── schemas/                     # 6 JSON schemas
-├── templates/                   # 3 HTML/PDF templates
-├── configs/                     # 3 YAML configs
-│
-├── prompts/                     # 22 prompt files
-│   ├── PROMPT_LIBRARY.md
-│   ├── common/UTILITIES.md
-│   └── agents/ (20 files)
-│
-├── memory/                      # 16 memory engine files
-│   ├── MEMORY_ENGINE.md
-│   ├── LONG_TERM_MEMORY.md
-│   ├── SHORT_TERM_MEMORY.md
-│   ├── CACHES/ (5 files)
-│   └── ... (11 more files)
-│
-├── rendering-engine/            # 7 rendering files
-│   ├── styles.css
-│   ├── components.css
-│   ├── engine.js
-│   ├── enhanced.js
-│   ├── quotation.html
-│   ├── demo.html
-│   └── README.md
-│
-├── search-engine/               # 14 search engine files
-│   ├── SEARCH_ENGINE.md
-│   ├── SEARCH_PIPELINE.md
-│   ├── RANKING_ENGINE.md
-│   └── ... (11 more files)
-│
-├── playwright-framework/        # 15 framework files
-│   ├── PLAYWRIGHT_FRAMEWORK.md
-│   ├── BROWSER_POOL.md
-│   ├── API_REFERENCE.md
-│   └── ... (12 more files)
-│
-├── environments/                # 4 environment files
-│   ├── development.md
-│   ├── staging.md
-│   ├── production.md
-│   └── README.md
-│
-├── monitoring/                  # 2 monitoring files
-│   ├── prometheus.yml
-│   └── grafana-dashboards.md
-│
-└── security/                    # 1 security file
-    └── SECURITY_POLICIES.md
-```
-
----
-
-## Components
-
-| Component | Files | Description |
-|-----------|-------|-------------|
-| Core Docs | 4 | System architecture, rules, memory |
-| Playbooks | 13 | 12-step workflow pipeline |
-| Runtime Agents | 20 | Complete agent specifications |
-| Tools | 17 | Integration tool documentation |
-| Schemas | 6 | JSON schema definitions |
-| Templates | 3 | HTML/PDF templates |
-| Configs | 3 | YAML configurations |
-| Prompts | 22 | 120 XML-formatted prompts |
-| Memory Engine | 16 | Memory management system |
-| Rendering Engine | 7 | HTML/CSS/JS quotation system |
-| Search Engine | 14 | Search intelligence system |
-| Playwright Framework | 15 | Browser automation framework |
-| Environments | 4 | Environment configurations |
-| Monitoring | 2 | Prometheus + Grafana |
-| Security | 1 | Security policies |
-| **Total** | **~147 files** | **Complete platform** |
-
----
-
-## Agents
-
-| Agent | ID | Purpose |
-|-------|-----|---------|
-| Supervisor | agent_supervisor_01 | Top-level orchestrator |
-| Planner | agent_planner_02 | Task decomposition |
-| Hotel | agent_hotel_03 | Hotel search & booking |
-| Flight | agent_flight_04 | Flight search & booking |
-| Activities | agent_activities_05 | Activity discovery |
-| Transportation | agent_transportation_06 | Ground transport |
-| Visa | agent_visa_07 | Visa requirements |
-| Weather | agent_weather_08 | Weather forecasts |
-| Currency | agent_currency_09 | Currency conversion |
-| Price Intelligence | agent_price_intelligence_10 | Price tracking |
-| Validation | agent_validation_11 | Data validation |
-| QA | agent_qa_12 | Quality assurance |
-| HTML Renderer | agent_html_renderer_13 | HTML generation |
-| PDF Generator | agent_pdf_generator_14 | PDF generation |
-| Image Collector | agent_image_collector_15 | Image collection |
-| SEO Content | agent_seo_content_16 | SEO optimization |
-| Research | agent_research_17 | Destination research |
-| Memory | agent_memory_18 | Memory operations |
-| Logging | agent_logging_19 | Logging operations |
-| Error Recovery | agent_error_recovery_20 | Error recovery |
-
----
-
-## Tools
-
-| Tool | ID | API |
-|------|-----|-----|
-| Hotel Search | tool_hotel_search | Hotelbeds, Booking.com, Agoda |
-| Hotel Details | tool_hotel_details | Hotelbeds, Booking.com |
-| Flight Search | tool_flight_search | Amadeus, Skyscanner |
-| Activity Search | tool_activity_search | Viator, GetYourGuide |
-| Booking Create | tool_booking_create | Hotelbeds, Booking.com |
-| Payment Process | tool_payment_process | Stripe |
-| Currency Convert | tool_currency_convert | OpenExchange |
-| Weather Get | tool_weather_get | WeatherAPI |
-| Image Search | tool_image_search | Unsplash, Pexels |
-| Geo Encode | tool_geo_encode | Google Maps |
-| Send Email | tool_send_email | SendGrid |
-| Generate PDF | tool_generate_pdf | Puppeteer |
-| Cache Get/Set | tool_cache_get/set | Redis |
-| Log Write | tool_log_write | ELK Stack |
-| Validate Data | tool_validate_data | JSON Schema |
-
----
-
-## Memory System
-
-### Memory Types
-- **Long-Term Memory** - Persistent user preferences and historical data
-- **Short-Term Memory** - Session-scoped working memory
-- **Conversation Memory** - Chat history with summarization
-- **Trip Memory** - Trip lifecycle management
-- **Search History** - Search query tracking
-
-### Cache Systems
-- **Price Cache** - Real-time price tracking with alerts
-- **Hotel Cache** - Hotel search results with TTL
-- **Image Cache** - Image storage with CDN integration
-- **Validation Cache** - Validation results caching
-- **Research Cache** - Destination research data
-
----
+- **Docker Compose** for local development
+- **Kubernetes Ready** for production deployment
+- **Prometheus + Grafana** monitoring
+- **CI/CD Pipeline** with GitHub Actions
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL 15+
+- Node.js 20+
+- pnpm 8+
+- PostgreSQL 16+
 - Redis 7+
-- Docker (optional)
 
 ### Installation
 
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/ahmedsali30stm-svg/travel-ai-agent-system.git
 cd travel-ai-agent-system
 
 # Install dependencies
-npm install
+pnpm install
 
 # Set up environment
 cp .env.example .env
-# Edit .env with your API keys
 
 # Start services
 docker-compose up -d
 
 # Run migrations
-npm run db:migrate
+pnpm db:migrate
 
-# Start application
-npm run dev
+# Seed database
+pnpm db:seed
+
+# Start development server
+pnpm dev
 ```
 
-### Environment Variables
+### API Usage
 
 ```bash
-# Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/travel_ai
+# Health check
+curl http://localhost:3000/health
 
-# Redis
-REDIS_URL=redis://localhost:6379
+# Register user
+curl -X POST http://localhost:3000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123","name":"Test User"}'
 
-# API Keys
-HOTELBEDS_API_KEY=your_key
-HOTELBEDS_API_SECRET=your_secret
-BOOKING_API_KEY=your_key
-VIATOR_API_KEY=your_key
-AMADEUS_API_KEY=your_key
-AMADEUS_API_SECRET=your_secret
+# Search hotels
+curl -X POST http://localhost:3000/api/v1/search/hotels \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "destination": "Paris, France",
+    "checkIn": "2024-06-01",
+    "checkOut": "2024-06-07",
+    "guests": 2
+  }'
 
-# Services
-WEATHER_API_KEY=your_key
-GOOGLE_MAPS_API_KEY=your_key
-STRIPE_SECRET_KEY=your_key
-SENDGRID_API_KEY=your_key
+# Process with agents
+curl -X POST http://localhost:3000/api/v1/agents/process \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "query": "Plan a 7-day trip to Paris for 2 people",
+    "context": {
+      "userId": "user_123"
+    }
+  }'
 ```
 
----
+## Project Structure
+
+```
+travel-ai-agent-system/
+├── src/                    # Source code
+│   ├── api/               # Express routes and middleware
+│   ├── agents/            # Agent orchestrator
+│   ├── config/            # Configuration
+│   ├── memory/            # Memory engine
+│   ├── prompts/           # LLM prompts
+│   ├── schemas/           # Zod schemas
+│   ├── services/          # Business logic
+│   ├── tools/             # Tool implementations
+│   └── utils/             # Utilities
+├── prisma/                # Database schema
+├── tests/                 # Test files
+├── playwright-framework/  # Browser automation
+├── search-engine/         # Search intelligence
+├── memory/                # Memory engine docs
+├── rendering-engine/      # HTML/CSS/JS templates
+├── monitoring/            # Prometheus & Grafana
+├── security/              # Security policies
+├── environments/          # Environment configs
+├── openapi.yaml          # API specification
+├── docker-compose.yml    # Docker services
+└── package.json          # Dependencies
+```
+
+## Testing
+
+```bash
+# Run unit tests
+pnpm test
+
+# Run with coverage
+pnpm test:coverage
+
+# Run integration tests
+pnpm test:integration
+
+# Run e2e tests
+pnpm test:e2e
+```
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [AGENTS.md](AGENTS.md) | Complete agent specifications |
-| [MEMORY.md](MEMORY.md) | Memory engine architecture |
-| [SYSTEM.md](SYSTEM.md) | System architecture |
-| [RULES.md](RULES.md) | Operational rules |
-| [Playbooks](playbooks/) | Workflow documentation |
-| [Runtime](runtime/) | Agent runtime specs |
-| [Tools](tools/) | Tool documentation |
-| [Prompts](prompts/) | Prompt templates |
-| [Memory](memory/) | Memory system docs |
-| [Rendering](rendering-engine/) | HTML/CSS/JS engine |
-| [Search](search-engine/) | Search intelligence |
-| [Playwright](playwright-framework/) | Browser automation |
-| [Environments](environments/) | Environment configs |
-| [Monitoring](monitoring/) | Monitoring setup |
-| [Security](security/) | Security policies |
-
----
+- **[AGENTS.md](./AGENTS.md)** - 25-agent architecture overview
+- **[MEMORY.md](./MEMORY.md)** - Shared memory engine design
+- **[SYSTEM.md](./SYSTEM.md)** - System architecture
+- **[RULES.md](./RULES.md)** - Operational rules
+- **[PROJECT_REPORT.md](./PROJECT_REPORT.md)** - Full project report
 
 ## License
 
-Enterprise use only. Proprietary.
-
----
-
-## Contact
-
-For questions or support, please contact:
-- Email: ahmed.sali30@example.com
-- GitHub: [@ahmedsali30stm-svg](https://github.com/ahmedsali30stm-svg)
+MIT License - see [LICENSE](./LICENSE) for details.
