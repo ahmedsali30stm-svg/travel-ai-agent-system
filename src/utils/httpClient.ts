@@ -121,7 +121,7 @@ export class HttpClient {
 
         return {
           status: response.status,
-          headers: Object.fromEntries(response.headers.entries()),
+          headers: Object.fromEntries((response.headers as any).entries()),
           data: responseData,
         };
       } catch (error) {
