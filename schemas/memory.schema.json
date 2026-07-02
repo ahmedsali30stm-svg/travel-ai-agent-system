@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://travel-ai.com/schemas/memory.schema.json",
+  "title": "Memory Operation Schema",
+  "description": "Schema for memory system operations",
+  "type": "object",
+  "required": ["operation", "memory_type"],
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": [
+        "read",
+        "write",
+        "update",
+        "delete",
+        "search",
+        "list_keys",
+        "get_ttl",
+        "set_ttl",
+        "clear",
+        "sync"
+      ],
+      "description": "Memory operation type"
+    },
+    "memory_type": {
+      "type": "string",
+      "enum": [
+        "shared",
+        "conversation",
+        "user",
+        "session",
+        "cache",
+        "metadata"
+      ],
+      "description": "Memory namespace"
+    },
+    "key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "Memory key"
+    },
+    "value": {
+      "type": ["object", "array", "string", "number", "boolean", "null"],
+      "description": "Value to store"
+    },
+    "query": {
+      "type": "string",
+      "description": "Search query"
+    },
+    "filters": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "created_after": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_before": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_after": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "min_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "ttl_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Time to live in milliseconds"
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Time to live in seconds"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": true
+        },
+        "create_if_not_exists": {
+          "type": "boolean",
+          "default": true
+        },
+        "return_old_value": {
+          "type": "boolean",
+          "default": false
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 100
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "order": {
+          "type": "string",
+          "enum": ["asc", "desc"],
+          "default": "desc"
+        },
+        "sort_by": {
+          "type": "string",
+          "enum": ["created", "updated", "key", "size"],
+          "default": "updated"
+        },
+        "compress": {
+          "type": "boolean",
+          "default": false
+        },
+        "compress_threshold_bytes": {
+          "type": "integer",
+          "default": 10240
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_-]+$"
+      },
+      "description": "Tags for categorization"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "agent_id": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "operation": { "const": "write" } }
+      },
+      "then": {
+        "required": ["key", "value"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "operation": { "const": "read" } }
+      },
+      "then": {
+        "required": ["key"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "operation": { "const": "delete" } }
+      },
+      "then": {
+        "required": ["key"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "operation": { "const": "search" } }
+      },
+      "then": {
+        "required": ["query"]
+      }
+    }
+  ]
+}

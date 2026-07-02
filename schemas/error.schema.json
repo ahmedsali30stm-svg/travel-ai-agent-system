@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://travel-ai.com/schemas/error.schema.json",
+  "title": "Error Response Schema",
+  "description": "Schema for error responses across the system",
+  "type": "object",
+  "required": ["error_id", "code", "message", "timestamp"],
+  "properties": {
+    "error_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique error identifier"
+    },
+    "code": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_ERROR",
+        "AUTHENTICATION_ERROR",
+        "AUTHORIZATION_ERROR",
+        "NOT_FOUND",
+        "CONFLICT",
+        "RATE_LIMITED",
+        "TIMEOUT",
+        "NETWORK_ERROR",
+        "SERVER_ERROR",
+        "SERVICE_UNAVAILABLE",
+        "PROVIDER_ERROR",
+        "BOOKING_ERROR",
+        "PAYMENT_ERROR",
+        "CANCELLATION_ERROR",
+        "INTERNAL_ERROR",
+        "UNKNOWN_ERROR"
+      ],
+      "description": "Error code"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable error message"
+    },
+    "details": {
+      "type": "object",
+      "description": "Additional error details",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field that caused the error"
+        },
+        "value": {
+          "description": "Value that caused the error"
+        },
+        "constraint": {
+          "type": "string",
+          "description": "Constraint that was violated"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Provider that returned the error"
+        },
+        "provider_code": {
+          "type": "string",
+          "description": "Provider-specific error code"
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "path": {
+      "type": "string",
+      "description": "API path that caused the error"
+    },
+    "method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"]
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Original request ID"
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "Distributed trace ID"
+    },
+    "retryable": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the request can be retried"
+    },
+    "retry_after_ms": {
+      "type": "integer",
+      "minimum": 1000,
+      "description": "Milliseconds to wait before retry"
+    },
+    "suggestions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Suggestions for fixing the error"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rel": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string",
+            "format": "uri"
+          },
+          "method": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,333 @@
+# Agent Configurations
+# Travel AI Agent System
+
+# Agent Manager
+agent_manager:
+  enabled: true
+  max_concurrent_agents: 10
+  default_timeout: 60000
+  heartbeat_interval_ms: 30000
+  health_check_interval_ms: 60000
+
+# Agent Definitions
+agents:
+  supervisor:
+    id: agent_supervisor_001
+    name: Supervisor Agent
+    type: orchestrator
+    enabled: true
+    config:
+      max_concurrent_tasks: 10
+      task_timeout_ms: 120000
+      escalation_threshold: 3
+    capabilities:
+      - task_routing
+      - parallel_execution
+      - error_handling
+      - escalation
+
+  planner:
+    id: agent_planner_002
+    name: Planner Agent
+    type: planner
+    enabled: true
+    config:
+      max_plan_steps: 20
+      planning_timeout_ms: 30000
+    capabilities:
+      - task_decomposition
+      - dependency_analysis
+      - resource_allocation
+
+  hotel:
+    id: agent_hotel_003
+    name: Hotel Agent
+    type: search
+    enabled: true
+    config:
+      primary_provider: hotelbeds
+      fallback_providers:
+        - booking_com
+        - agoda
+        - expedia
+      max_results: 50
+      search_timeout_ms: 30000
+    capabilities:
+      - hotel_search
+      - availability_check
+      - price_comparison
+      - booking_creation
+
+  flight:
+    id: agent_flight_004
+    name: Flight Agent
+    type: search
+    enabled: true
+    config:
+      primary_provider: amadeus
+      fallback_providers:
+        - sabre
+        - travelport
+      max_results: 50
+      search_timeout_ms: 30000
+    capabilities:
+      - flight_search
+      - fare_comparison
+      - seat_availability
+      - booking_creation
+
+  activities:
+    id: agent_activities_005
+    name: Activities Agent
+    type: search
+    enabled: true
+    config:
+      primary_provider: viator
+      fallback_providers:
+        - getyourguide
+        - klook
+        - kkday
+      max_results: 50
+      search_timeout_ms: 30000
+    capabilities:
+      - activity_search
+      - availability_check
+      - price_comparison
+      - booking_creation
+
+  transportation:
+    id: agent_transportation_006
+    name: Transportation Agent
+    type: search
+    enabled: true
+    config:
+      providers:
+        - uber
+        - lyft
+        - local_taxi
+      search_timeout_ms: 15000
+    capabilities:
+      - ride_estimation
+      - public_transit
+      - car_rental
+      - airport_transfer
+
+  visa:
+    id: agent_visa_007
+    name: Visa Agent
+    type: research
+    enabled: true
+    config:
+      data_source: visa_requirements_db
+      cache_ttl_ms: 86400000
+    capabilities:
+      - visa_check
+      - requirement_lookup
+      - document_checklist
+      - processing_time
+
+  weather:
+    id: agent_weather_008
+    name: Weather Agent
+    type: research
+    enabled: true
+    config:
+      primary_provider: openweathermap
+      forecast_days: 14
+      cache_ttl_ms: 3600000
+    capabilities:
+      - current_weather
+      - forecast
+      - historical_data
+      - alerts
+
+  currency:
+    id: agent_currency_009
+    name: Currency Agent
+    type: research
+    enabled: true
+    config:
+      primary_provider: exchangerate_api
+      cache_ttl_ms: 3600000
+      supported_currencies:
+        - USD
+        - EUR
+        - GBP
+        - JPY
+        - AED
+        - SGD
+    capabilities:
+      - exchange_rate
+      - currency_conversion
+      - rate_history
+      - rate_alerts
+
+  price_intelligence:
+    id: agent_price_intelligence_010
+    name: Price Intelligence Agent
+    type: analytics
+    enabled: true
+    config:
+      data_retention_days: 90
+      analysis_interval_ms: 3600000
+    capabilities:
+      - price_tracking
+      - trend_analysis
+      - price_alerts
+      - deal_scoring
+
+  validation:
+    id: agent_validation_011
+    name: Validation Agent
+    type: validator
+    enabled: true
+    config:
+      strict_mode: false
+      timeout_ms: 5000
+    capabilities:
+      - input_validation
+      - output_validation
+      - data_quality
+      - schema_validation
+
+  qa:
+    id: agent_qa_012
+    name: QA Agent
+    type: validator
+    enabled: true
+    config:
+      quality_threshold: 0.8
+      auto_fix: true
+    capabilities:
+      - link_validation
+      - content_quality
+      - spelling_check
+      - accessibility_check
+
+  html_renderer:
+    id: agent_html_renderer_013
+    name: HTML Renderer Agent
+    type: renderer
+    enabled: true
+    config:
+      template_engine: handlebars
+      default_layout: standard
+      cache_templates: true
+    capabilities:
+      - html_generation
+      - template_rendering
+      - responsive_design
+      - pdf_generation
+
+  pdf_generator:
+    id: agent_pdf_generator_014
+    name: PDF Generator Agent
+    type: renderer
+    enabled: true
+    config:
+      engine: puppeteer
+      default_format: A4
+      default_orientation: portrait
+    capabilities:
+      - pdf_generation
+      - page_layout
+      - header_footer
+      - watermark
+
+  image_collector:
+    id: agent_image_collector_015
+    name: Image Collector Agent
+    type: collector
+    enabled: true
+    config:
+      providers:
+        - unsplash
+        - pexels
+        - provider_direct
+      max_images: 20
+      cache_ttl_ms: 604800000
+    capabilities:
+      - image_search
+      - image_validation
+      - image_optimization
+      - placeholder_generation
+
+  seo_content:
+    id: agent_seo_content_016
+    name: SEO Content Agent
+    type: content
+    enabled: true
+    config:
+      max_title_length: 60
+      max_description_length: 160
+      target_seo_score: 80
+    capabilities:
+      - meta_generation
+      - keyword_optimization
+      - structured_data
+      - open_graph
+
+  research:
+    id: agent_research_017
+    name: Research Agent
+    type: research
+    enabled: true
+    config:
+      sources:
+        - tripadvisor
+        - lonely_planet
+        - local_guides
+      max_results: 20
+      quality_threshold: 0.7
+    capabilities:
+      - destination_research
+      - attraction_lookup
+      - custom_research
+      - review_analysis
+
+  memory:
+    id: agent_memory_018
+    name: Memory Agent
+    type: system
+    enabled: true
+    config:
+      store: redis
+      default_ttl_ms: 3600000
+      max_key_size: 1048576
+      max_value_size: 5242880
+    capabilities:
+      - memory_read
+      - memory_write
+      - memory_search
+      - memory_sync
+
+  logging:
+    id: agent_logging_019
+    name: Logging Agent
+    type: system
+    enabled: true
+    config:
+      log_level: info
+      retention_days: 90
+      compression: true
+      storage: filesystem
+    capabilities:
+      - log_write
+      - log_read
+      - log_search
+      - log_export
+
+  error_recovery:
+    id: agent_error_recovery_020
+    name: Error Recovery Agent
+    type: system
+    enabled: true
+    config:
+      max_retries: 3
+      circuit_breaker_threshold: 5
+      dead_letter_queue_size: 10000
+    capabilities:
+      - error_detection
+      - retry_management
+      - fallback_execution
+      - circuit_breaking

@@ -1,0 +1,398 @@
+# Tool Configurations
+# Travel AI Agent System
+
+# Tool Manager
+tool_manager:
+  enabled: true
+  default_timeout: 30000
+  default_retries: 3
+  max_concurrent_requests: 50
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    reset_timeout_ms: 60000
+    half_open_max: 3
+
+# Browser Tools
+tools:
+  playwright:
+    enabled: true
+    category: browser
+    version: "1.42.0"
+    config:
+      browser: chromium
+      headless: true
+      viewport:
+        width: 1920
+        height: 1080
+      timeout: 30000
+      navigation_timeout: 60000
+      proxy:
+        enabled: false
+        server: ""
+      pool:
+        min_instances: 2
+        max_instances: 10
+        idle_timeout_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 200
+      concurrent_sessions: 5
+    retry:
+      max_retries: 2
+      initial_delay_ms: 1000
+      max_delay_ms: 5000
+      backoff_multiplier: 2
+
+  browser:
+    enabled: true
+    category: browser
+    version: "1.0.0"
+    config:
+      user_agent: "Mozilla/5.0 (compatible; TravelBot/1.0)"
+      timeout: 10000
+      follow_redirects: true
+      max_redirects: 5
+      verify_ssl: true
+    rate_limit:
+      requests_per_second: 10
+      requests_per_minute: 500
+    retry:
+      max_retries: 3
+      initial_delay_ms: 500
+      max_delay_ms: 5000
+      backoff_multiplier: 2
+
+  http:
+    enabled: true
+    category: http
+    version: "1.0.0"
+    config:
+      timeout: 30000
+      retries: 3
+      verify_ssl: true
+      follow_redirects: true
+      max_redirects: 10
+      pool:
+        max_connections: 100
+        max_per_host: 20
+        keep_alive: true
+    rate_limit:
+      requests_per_second: 50
+      requests_per_minute: 3000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 30000
+      backoff_multiplier: 2
+
+  rest_apis:
+    enabled: true
+    category: http
+    version: "1.0.0"
+    config:
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 100
+      requests_per_minute: 6000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 30000
+      backoff_multiplier: 2
+
+# Map Tools
+  google_maps:
+    enabled: true
+    category: maps
+    version: "3.0.0"
+    config:
+      api_key: ${GOOGLE_MAPS_API_KEY}
+      base_url: "https://maps.googleapis.com"
+      timeout: 10000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 86400000
+    rate_limit:
+      requests_per_second: 50
+      requests_per_minute: 3000
+      daily_limit: 100000
+      quota_cost:
+        geocoding: 5
+        places_search: 10
+        directions: 10
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 10000
+      backoff_multiplier: 2
+
+  openstreetmap:
+    enabled: true
+    category: maps
+    version: "1.0.0"
+    config:
+      nominatim_url: "https://nominatim.openstreetmap.org"
+      overpass_url: "https://overpass-api.de/api"
+      timeout: 30000
+      retries: 3
+      user_agent: "TravelAI/1.0"
+      cache:
+        enabled: true
+        ttl_ms: 604800000
+    rate_limit:
+      nominatim: 1
+      overpass: 0.5
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 10000
+      backoff_multiplier: 2
+
+# Hotel Tools
+  hotelbeds:
+    enabled: true
+    category: hotel
+    version: "3.0.0"
+    config:
+      base_url: "https://api.hotelbeds.com"
+      api_version: "3.0"
+      api_key: ${HOTELBEDS_API_KEY}
+      secret: ${HOTELBEDS_SECRET}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 10
+      requests_per_minute: 600
+      requests_per_hour: 36000
+      daily_limit: 100000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 10000
+      backoff_multiplier: 2
+
+  booking_com:
+    enabled: true
+    category: hotel
+    version: "1.0.0"
+    config:
+      base_url: "https://distribution-xml.booking.com"
+      affiliate_id: ${BOOKING_AFFILIATE_ID}
+      api_key: ${BOOKING_API_KEY}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 100000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  agoda:
+    enabled: true
+    category: hotel
+    version: "1.0.0"
+    config:
+      base_url: "https://api.agoda.com"
+      partner_id: ${AGODA_PARTNER_ID}
+      api_key: ${AGODA_API_KEY}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 50000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  expedia:
+    enabled: true
+    category: hotel
+    version: "1.0.0"
+    config:
+      base_url: "https://api.ean.com"
+      api_key: ${EXPEDIA_API_KEY}
+      api_secret: ${EXPEDIA_API_SECRET}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 100000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  trip_com:
+    enabled: true
+    category: hotel
+    version: "1.0.0"
+    config:
+      base_url: "https://api.trip.com"
+      app_id: ${TRIP_APP_ID}
+      api_key: ${TRIP_API_KEY}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 50000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  hotels_com:
+    enabled: true
+    category: hotel
+    version: "1.0.0"
+    config:
+      base_url: "https://api.hotels.com"
+      api_key: ${HOTELS_COM_API_KEY}
+      api_secret: ${HOTELS_COM_API_SECRET}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 100000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+# Activity Tools
+  viator:
+    enabled: true
+    category: activities
+    version: "1.0.0"
+    config:
+      base_url: "https://api.viator.com"
+      api_key: ${VIATOR_API_KEY}
+      partner_id: ${VIATOR_PARTNER_ID}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 50000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  getyourguide:
+    enabled: true
+    category: activities
+    version: "1.0.0"
+    config:
+      base_url: "https://api.getyourguide.com"
+      api_key: ${GETYOURGUIDE_API_KEY}
+      partner_id: ${GETYOURGUIDE_PARTNER_ID}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 50000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  kkday:
+    enabled: true
+    category: activities
+    version: "1.0.0"
+    config:
+      base_url: "https://api.kkday.com"
+      api_key: ${KKDAY_API_KEY}
+      partner_id: ${KKDAY_PARTNER_ID}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 50000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2
+
+  klook:
+    enabled: true
+    category: activities
+    version: "1.0.0"
+    config:
+      base_url: "https://api.klook.com"
+      api_key: ${KLOOK_API_KEY}
+      partner_id: ${KLOOK_PARTNER_ID}
+      timeout: 30000
+      retries: 3
+      cache:
+        enabled: true
+        ttl_ms: 300000
+    rate_limit:
+      requests_per_second: 5
+      requests_per_minute: 300
+      requests_per_hour: 18000
+      daily_limit: 50000
+    retry:
+      max_retries: 3
+      initial_delay_ms: 1000
+      max_delay_ms: 15000
+      backoff_multiplier: 2

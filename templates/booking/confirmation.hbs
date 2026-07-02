@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="{{language}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation - {{booking_id}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: {{brand.font_family | default 'Arial, sans-serif'}};
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      background: #34a853;
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header img {
+      max-height: 60px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .checkmark {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    .confirmation-code {
+      background: white;
+      color: #34a853;
+      padding: 15px 30px;
+      border-radius: 5px;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    .content {
+      padding: 30px 40px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      font-size: 18px;
+      color: {{brand.primary_color | default '#1a73e8'}};
+      margin-bottom: 15px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .detail-label {
+      color: #666;
+    }
+
+    .detail-value {
+      font-weight: bold;
+    }
+
+    .highlight-box {
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .highlight-box.warning {
+      background: #fff3e0;
+    }
+
+    .highlight-box.info {
+      background: #e3f2fd;
+    }
+
+    .highlight-box-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .qr-code {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .qr-code img {
+      max-width: 150px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: {{brand.primary_color | default '#1a73e8'}};
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .footer {
+      background: #333;
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+
+    .footer p {
+      opacity: 0.8;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .container {
+        box-shadow: none;
+      }
+      .action-buttons {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      {{#if brand.logo_url}}
+        <img src="{{brand.logo_url}}" alt="{{brand.name}}">
+      {{/if}}
+      <div class="checkmark">✓</div>
+      <h1>Booking Confirmed!</h1>
+      <p>Your {{booking_type}} has been successfully booked</p>
+      <div class="confirmation-code">{{confirmation_code}}</div>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Booking Details</h2>
+        <div class="detail-row">
+          <span class="detail-label">Booking ID</span>
+          <span class="detail-value">{{booking_id}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Booking Date</span>
+          <span class="detail-value">{{formatDate created_at}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">{{status}}</span>
+        </div>
+      </div>
+
+      {{#if hotel}}
+      <div class="section">
+        <h2 class="section-title">Hotel Information</h2>
+        <div class="detail-row">
+          <span class="detail-label">Hotel</span>
+          <span class="detail-value">{{hotel.name}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Address</span>
+          <span class="detail-value">{{hotel.address}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Check-in</span>
+          <span class="detail-value">{{formatDate hotel.check_in}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Check-out</span>
+          <span class="detail-value">{{formatDate hotel.check_out}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Room Type</span>
+          <span class="detail-value">{{hotel.room_type}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Guests</span>
+          <span class="detail-value">{{hotel.guests}}</span>
+        </div>
+      </div>
+      {{/if}}
+
+      {{#if flight}}
+      <div class="section">
+        <h2 class="section-title">Flight Information</h2>
+        <div class="detail-row">
+          <span class="detail-label">Airline</span>
+          <span class="detail-value">{{flight.airline}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Flight Number</span>
+          <span class="detail-value">{{flight.flight_number}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Route</span>
+          <span class="detail-value">{{flight.departure.airport}} → {{flight.arrival.airport}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Departure</span>
+          <span class="detail-value">{{formatDate flight.departure.date}} {{flight.departure.time}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Arrival</span>
+          <span class="detail-value">{{formatDate flight.arrival.date}} {{flight.arrival.time}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Cabin Class</span>
+          <span class="detail-value">{{flight.cabin_class}}</span>
+        </div>
+      </div>
+      {{/if}}
+
+      {{#if activity}}
+      <div class="section">
+        <h2 class="section-title">Activity Information</h2>
+        <div class="detail-row">
+          <span class="detail-label">Activity</span>
+          <span class="detail-value">{{activity.title}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date</span>
+          <span class="detail-value">{{formatDate activity.date}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Time</span>
+          <span class="detail-value">{{activity.time}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Duration</span>
+          <span class="detail-value">{{activity.duration}} minutes</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Meeting Point</span>
+          <span class="detail-value">{{activity.meeting_point}}</span>
+        </div>
+      </div>
+      {{/if}}
+
+      <div class="section">
+        <h2 class="section-title">Payment Summary</h2>
+        {{#each payment.items}}
+        <div class="detail-row">
+          <span class="detail-label">{{this.description}}</span>
+          <span class="detail-value">{{formatCurrency this.amount this.currency}}</span>
+        </div>
+        {{/each}}
+        <div class="detail-row" style="font-size: 18px; margin-top: 10px;">
+          <span class="detail-label"><strong>Total Paid</strong></span>
+          <span class="detail-value"><strong>{{formatCurrency payment.total.amount payment.total.currency}}</strong></span>
+        </div>
+      </div>
+
+      {{#if cancellation_policy}}
+      <div class="section">
+        <h2 class="section-title">Cancellation Policy</h2>
+        <div class="highlight-box warning">
+          <div class="highlight-box-title">Important</div>
+          <p>{{cancellation_policy}}</p>
+        </div>
+      </div>
+      {{/if}}
+
+      <div class="section">
+        <h2 class="section-title">What's Next?</h2>
+        <div class="highlight-box info">
+          <div class="highlight-box-title">Next Steps</div>
+          <ul>
+            {{#each next_steps}}
+            <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="{{app_url}}/bookings/{{booking_id}}" class="btn btn-primary">View in App</a>
+        <a href="mailto:{{support_email}}" class="btn btn-secondary">Contact Support</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Thank you for booking with {{brand.name | default 'TravelAI'}}!</p>
+      <p>Booking ID: {{booking_id}} | Confirmation: {{confirmation_code}}</p>
+      <p>For support, contact us at {{support_email}}</p>
+    </div>
+  </div>
+</body>
+</html>

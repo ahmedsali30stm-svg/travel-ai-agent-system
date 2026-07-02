@@ -1,0 +1,233 @@
+# Main Configuration
+# Travel AI Agent System
+
+# Application Settings
+app:
+  name: "TravelAI"
+  version: "1.0.0"
+  environment: ${NODE_ENV:-development}
+  port: ${APP_PORT:-3000}
+  host: ${APP_HOST:-0.0.0.0}
+  debug: ${DEBUG:-false}
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:-3000}
+  host: ${SERVER_HOST:-0.0.0.0}
+  cors:
+    enabled: true
+    origins:
+      - "http://localhost:3000"
+      - "http://localhost:3001"
+      - "https://*.travelai.com"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    headers:
+      - Content-Type
+      - Authorization
+      - X-Request-ID
+    credentials: true
+  rate_limit:
+    enabled: true
+    window_ms: 900000
+    max_requests: 100
+    message: "Too many requests"
+
+# Database Configuration
+database:
+  type: postgresql
+  host: ${DB_HOST:-localhost}
+  port: ${DB_PORT:-5432}
+  name: ${DB_NAME:-travelai}
+  username: ${DB_USERNAME:-postgres}
+  password: ${DB_PASSWORD}
+  ssl: ${DB_SSL:-false}
+  pool:
+    min: 5
+    max: 20
+    idle_timeout_ms: 30000
+  migrations:
+    auto: true
+    directory: ./migrations
+
+# Redis Configuration
+redis:
+  host: ${REDIS_HOST:-localhost}
+  port: ${REDIS_PORT:-6379}
+  password: ${REDIS_PASSWORD}
+  db: ${REDIS_DB:-0}
+  key_prefix: "travelai:"
+  pool:
+    min: 5
+    max: 50
+    idle_timeout_ms: 30000
+  cluster:
+    enabled: false
+    nodes: []
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expires_in: 24h
+  refresh_expires_in: 7d
+  issuer: "travelai"
+  audience: "travelai-app"
+
+# API Keys
+api_keys:
+  hotelbeds:
+    api_key: ${HOTELBEDS_API_KEY}
+    secret: ${HOTELBEDS_SECRET}
+  booking_com:
+    api_key: ${BOOKING_API_KEY}
+    affiliate_id: ${BOOKING_AFFILIATE_ID}
+  expedia:
+    api_key: ${EXPEDIA_API_KEY}
+    api_secret: ${EXPEDIA_API_SECRET}
+  viator:
+    api_key: ${VIATOR_API_KEY}
+    partner_id: ${VIATOR_PARTNER_ID}
+  google_maps:
+    api_key: ${GOOGLE_MAPS_API_KEY}
+
+# Logging Configuration
+logging:
+  level: ${LOG_LEVEL:-info}
+  format: json
+  outputs:
+    - type: console
+    - type: file
+      path: ./logs/app.log
+      max_size: 100m
+      max_files: 30
+    - type: file
+      path: ./logs/error.log
+      level: error
+      max_size: 50m
+      max_files: 90
+  audit:
+    enabled: true
+    path: ./logs/audit.log
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  port: ${METRICS_PORT:-9090}
+  path: /metrics
+  prometheus:
+    enabled: true
+    prefix: travelai_
+  grafana:
+    enabled: false
+    url: ${GRAFANA_URL}
+  datadog:
+    enabled: false
+    api_key: ${DATADOG_API_KEY}
+    app_key: ${DATADOG_APP_KEY}
+
+# Cache Configuration
+cache:
+  enabled: true
+  default_ttl: 300000
+  max_entries: 100000
+  strategy: lru
+  storage: redis
+  prefix: "cache:"
+  warming:
+    enabled: false
+    schedule: "0 2 * * *"
+    keys: []
+
+# Security Configuration
+security:
+  encryption:
+    algorithm: aes-256-gcm
+    key: ${ENCRYPTION_KEY}
+  rate_limiting:
+    enabled: true
+    global_limit: 1000
+    per_user_limit: 100
+  cors:
+    enabled: true
+  helmet:
+    enabled: true
+  csrf:
+    enabled: true
+    secret: ${CSRF_SECRET}
+
+# Email Configuration
+email:
+  enabled: true
+  provider: smtp
+  smtp:
+    host: ${SMTP_HOST:-smtp.gmail.com}
+    port: ${SMTP_PORT:-587}
+    secure: false
+    auth:
+      user: ${SMTP_USER}
+      pass: ${SMTP_PASS}
+  from:
+    name: "TravelAI"
+    address: ${EMAIL_FROM:-noreply@travelai.com}
+  templates:
+    directory: ./templates/email
+
+# SMS Configuration
+sms:
+  enabled: false
+  provider: twilio
+  twilio:
+    account_sid: ${TWILIO_ACCOUNT_SID}
+    auth_token: ${TWILIO_AUTH_TOKEN}
+    from_number: ${TWILIO_FROM_NUMBER}
+
+# Payment Configuration
+payment:
+  enabled: true
+  providers:
+    stripe:
+      enabled: true
+      secret_key: ${STRIPE_SECRET_KEY}
+      webhook_secret: ${STRIPE_WEBHOOK_SECRET}
+    paypal:
+      enabled: false
+      client_id: ${PAYPAL_CLIENT_ID}
+      client_secret: ${PAYPAL_CLIENT_SECRET}
+
+# File Storage
+storage:
+  type: s3
+  s3:
+    bucket: ${S3_BUCKET:-travelai-production}
+    region: ${AWS_REGION:-us-east-1}
+    access_key: ${AWS_ACCESS_KEY_ID}
+    secret_key: ${AWS_SECRET_ACCESS_KEY}
+  local:
+    path: ./storage
+
+# Queue Configuration
+queue:
+  enabled: true
+  provider: redis
+  redis:
+    host: ${REDIS_HOST:-localhost}
+    port: ${REDIS_PORT:-6379}
+  jobs:
+    booking:
+      concurrency: 5
+    email:
+      concurrency: 10
+    notification:
+      concurrency: 20
+
+# Feature Flags
+features:
+  enable_beta_features: false
+  enable_ai_recommendations: true
+  enable_real_time_pricing: true
+  enable_social_sharing: true
+  enable_loyalty_program: false

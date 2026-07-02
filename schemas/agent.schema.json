@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://travel-ai.com/schemas/agent.schema.json",
+  "title": "Agent Message Schema",
+  "description": "Schema for inter-agent communication messages",
+  "type": "object",
+  "required": ["message_id", "from_agent", "to_agent", "message_type", "payload"],
+  "properties": {
+    "message_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique message identifier"
+    },
+    "from_agent": {
+      "type": "string",
+      "pattern": "^agent_[a-z_]+_[0-9]+$",
+      "description": "Source agent ID"
+    },
+    "to_agent": {
+      "type": "string",
+      "pattern": "^(agent_[a-z_]+_[0-9]+|all|broadcast)$",
+      "description": "Destination agent ID"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "request",
+        "response",
+        "event",
+        "error",
+        "heartbeat",
+        "ack",
+        "nack"
+      ],
+      "description": "Message type"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "critical"],
+      "default": "normal"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Message payload",
+      "properties": {
+        "operation": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "error": {
+          "$ref": "#/definitions/Error"
+        }
+      }
+    },
+    "correlation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Correlation ID for request-response pairing"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ttl_ms": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 300000,
+      "default": 30000,
+      "description": "Time to live in milliseconds"
+    },
+    "retry_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "span_id": {
+          "type": "string"
+        },
+        "service_version": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "TIMEOUT",
+            "NETWORK_ERROR",
+            "INVALID_REQUEST",
+            "UNAUTHORIZED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "RATE_LIMITED",
+            "SERVER_ERROR",
+            "UNKNOWN_ERROR"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        },
+        "retryable": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://travel-ai.com/schemas/request.schema.json",
+  "title": "Travel Request Schema",
+  "description": "Schema for travel search and booking requests",
+  "type": "object",
+  "required": ["request_id", "user_id", "request_type"],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique request identifier"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User identifier"
+    },
+    "session_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Session identifier"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "hotel_search",
+        "hotel_booking",
+        "flight_search",
+        "activity_search",
+        "itinerary_planning",
+        "destination_info",
+        "price_comparison",
+        "booking_modification",
+        "booking_cancellation"
+      ],
+      "description": "Type of travel request"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "normal", "high", "urgent"],
+      "default": "normal",
+      "description": "Request priority level"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Request-specific parameters",
+      "properties": {
+        "destination": {
+          "$ref": "#/definitions/Destination"
+        },
+        "dates": {
+          "$ref": "#/definitions/DateRange"
+        },
+        "travelers": {
+          "$ref": "#/definitions/Travelers"
+        },
+        "preferences": {
+          "$ref": "#/definitions/Preferences"
+        },
+        "budget": {
+          "$ref": "#/definitions/Budget"
+        },
+        "filters": {
+          "$ref": "#/definitions/Filters"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "Additional context",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["web", "mobile", "api", "chat"],
+          "default": "web"
+        },
+        "language": {
+          "type": "string",
+          "default": "en"
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD"
+        },
+        "timezone": {
+          "type": "string",
+          "default": "UTC"
+        },
+        "ip_address": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "user_agent": {
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Request metadata",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_channel": {
+          "type": "string"
+        },
+        "correlation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Destination": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "object",
+          "properties": {
+            "latitude": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "longitude": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180
+            }
+          }
+        },
+        "airport_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "DateRange": {
+      "type": "object",
+      "required": ["check_in", "check_out"],
+      "properties": {
+        "check_in": {
+          "type": "string",
+          "format": "date"
+        },
+        "check_out": {
+          "type": "string",
+          "format": "date"
+        },
+        "flexible": {
+          "type": "boolean",
+          "default": false
+        },
+        "flexibility_days": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7,
+          "default": 0
+        }
+      }
+    },
+    "Travelers": {
+      "type": "object",
+      "required": ["adults"],
+      "properties": {
+        "adults": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "children": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 0
+        },
+        "child_ages": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 17
+          }
+        },
+        "infants": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "default": 0
+        },
+        "rooms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 1
+        }
+      }
+    },
+    "Preferences": {
+      "type": "object",
+      "properties": {
+        "star_rating": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          }
+        },
+        "amenities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "wifi",
+              "pool",
+              "spa",
+              "gym",
+              "parking",
+              "restaurant",
+              "bar",
+              "room_service",
+              "laundry",
+              "airport_shuttle",
+              "business_center",
+              "concierge",
+              "pet_friendly",
+              "family_friendly",
+              "accessible"
+            ]
+          }
+        },
+        "board_type": {
+          "type": "string",
+          "enum": [
+            "room_only",
+            "breakfast",
+            "half_board",
+            "full_board",
+            "all_inclusive"
+          ]
+        },
+        "room_type": {
+          "type": "string",
+          "enum": [
+            "single",
+            "double",
+            "twin",
+            "triple",
+            "quad",
+            "suite",
+            "family",
+            "presidential"
+          ]
+        },
+        "location_preference": {
+          "type": "string",
+          "enum": [
+            "city_center",
+            "beach",
+            "airport",
+            "business_district",
+            "tourist_area",
+            "near_transit"
+          ]
+        },
+        "chain_preference": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accessibility_needs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "wheelchair_accessible",
+              "hearing_impaired",
+              "visually_impaired",
+              "mobility_limited"
+            ]
+          }
+        }
+      }
+    },
+    "Budget": {
+      "type": "object",
+      "properties": {
+        "min_amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "default": "USD"
+        },
+        "per_night": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "Filters": {
+      "type": "object",
+      "properties": {
+        "exclude_hotels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include_only": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "min_review_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "max_distance_km": {
+          "type": "number",
+          "minimum": 0
+        },
+        "free_cancellation": {
+          "type": "boolean"
+        },
+        "instant_confirmation": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

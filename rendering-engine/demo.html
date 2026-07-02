@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Demo - Travel Quotation Rendering Engine">
+  <title>Interactive Demo | Travel Quotation Engine</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="components.css">
+  
+  <style>
+    .demo-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      padding: var(--space-4) var(--space-6);
+      z-index: var(--z-sticky);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .demo-nav-brand {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    
+    .demo-nav-links {
+      display: flex;
+      gap: var(--space-4);
+    }
+    
+    .demo-nav-link {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .demo-nav-link:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    
+    .demo-section {
+      padding: var(--space-16) var(--space-6);
+      max-width: var(--container-max);
+      margin: 0 auto;
+    }
+    
+    .demo-section:first-of-type {
+      padding-top: 80px;
+    }
+    
+    .demo-title {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin-bottom: var(--space-4);
+      background: linear-gradient(135deg, var(--color-gold), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .demo-subtitle {
+      color: var(--text-secondary);
+      margin-bottom: var(--space-8);
+      max-width: 600px;
+    }
+    
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-6);
+    }
+    
+    .demo-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-light);
+    }
+    
+    .demo-card-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    
+    .demo-card-title svg {
+      width: 24px;
+      height: 24px;
+      color: var(--color-accent);
+    }
+    
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    
+    .demo-separator {
+      height: 1px;
+      background: var(--border-light);
+      margin: var(--space-8) 0;
+    }
+    
+    .demo-feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-4);
+    }
+    
+    .demo-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-lg);
+    }
+    
+    .demo-feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .demo-feature-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-inverse);
+    }
+    
+    .demo-feature-text h4 {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+    
+    .demo-feature-text p {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="demo-nav" role="navigation" aria-label="Main navigation">
+    <div class="demo-nav-brand">Quotation Engine Demo</div>
+    <div class="demo-nav-links">
+      <a href="#theme" class="demo-nav-link">Theme</a>
+      <a href="#components" class="demo-nav-link">Components</a>
+      <a href="#interactive" class="demo-nav-link">Interactive</a>
+      <a href="#features" class="demo-nav-link">Features</a>
+      <a href="quotation.html" class="demo-nav-link">Full Demo</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main>
+    <!-- Theme Section -->
+    <section id="theme" class="demo-section">
+      <h1 class="demo-title">Travel Quotation Engine</h1>
+      <p class="demo-subtitle">
+        A premium, enterprise-grade quotation system for luxury travel agencies. 
+        Pure HTML/CSS/JS with no frameworks.
+      </p>
+      
+      <div class="demo-grid">
+        <!-- Theme Toggle -->
+        <div class="demo-card">
+          <h3 class="demo-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            Theme Toggle
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            Switch between light and dark modes. Theme preference is saved locally.
+          </p>
+          <div class="demo-controls">
+            <button class="btn btn-primary" onclick="QuotationEngine.theme.toggleTheme()">
+              Toggle Theme
+            </button>
+            <button class="btn btn-secondary" onclick="document.documentElement.setAttribute('data-theme', 'light')">
+              Light
+            </button>
+            <button class="btn btn-secondary" onclick="document.documentElement.setAttribute('data-theme', 'dark')">
+              Dark
+            </button>
+          </div>
+        </div>
+        
+        <!-- Direction Toggle -->
+        <div class="demo-card">
+          <h3 class="demo-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 1l4 4-4 4"/>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+              <path d="M7 23l-4-4 4-4"/>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+            RTL/LTR Support
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            Full bidirectional text support for Arabic, Hebrew, and other RTL languages.
+          </p>
+          <div class="demo-controls">
+            <button class="btn btn-primary" onclick="QuotationEngine.setDirection('ltr')">
+              LTR
+            </button>
+            <button class="btn btn-primary" onclick="QuotationEngine.setDirection('rtl')">
+              RTL
+            </button>
+          </div>
+        </div>
+        
+        <!-- Print/PDF -->
+        <div class="demo-card">
+          <h3 class="demo-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Print & PDF
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            Optimized print styles and PDF export functionality.
+          </p>
+          <div class="demo-controls">
+            <button class="btn btn-primary" onclick="QuotationEngine.print()">
+              Print
+            </button>
+            <button class="btn btn-gold" onclick="QuotationEngine.exportPDF()">
+              Export PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="demo-separator"></div>
+    
+    <!-- Components Section -->
+    <section id="components" class="demo-section">
+      <h2 class="demo-title">Components</h2>
+      <p class="demo-subtitle">
+        Modular, reusable components for building travel quotations.
+      </p>
+      
+      <!-- Tabs Demo -->
+      <div class="demo-card" style="margin-bottom: var(--space-6);">
+        <h3 class="demo-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          Tabs Component
+        </h3>
+        
+        <div class="tabs">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab="tab-overview">Overview</button>
+            <button class="tab-btn" data-tab="tab-itinerary">Itinerary</button>
+            <button class="tab-btn" data-tab="tab-pricing">Pricing</button>
+            <button class="tab-btn" data-tab="tab-reviews">Reviews</button>
+          </div>
+          
+          <div class="tab-content">
+            <div id="tab-overview" class="tab-pane active">
+              <h4 style="margin-bottom: var(--space-3);">Trip Overview</h4>
+              <p style="color: var(--text-secondary); font-size: var(--text-sm);">
+                A luxurious 7-day journey through Paris, featuring world-class accommodations, 
+                exclusive experiences, and unforgettable memories.
+              </p>
+            </div>
+            
+            <div id="tab-itinerary" class="tab-pane">
+              <h4 style="margin-bottom: var(--space-3);">Daily Itinerary</h4>
+              <p style="color: var(--text-secondary); font-size: var(--text-sm);">
+                Day 1: Arrival & Hotel Check-in<br>
+                Day 2: Eiffel Tower & Champs-Élysées<br>
+                Day 3: Louvre Museum & Montmartre<br>
+                Day 4: Versailles Day Trip<br>
+                Day 5: Culinary Experience<br>
+                Day 6: Seine River Cruise<br>
+                Day 7: Departure
+              </p>
+            </div>
+            
+            <div id="tab-pricing" class="tab-pane">
+              <h4 style="margin-bottom: var(--space-3);">Pricing Details</h4>
+              <p style="color: var(--text-secondary); font-size: var(--text-sm);">
+                Accommodation: $5,340<br>
+                Experiences: $1,850<br>
+                Dining: $1,200<br>
+                Transfers: $480<br>
+                <strong>Total: $8,550</strong>
+              </p>
+            </div>
+            
+            <div id="tab-reviews" class="tab-pane">
+              <h4 style="margin-bottom: var(--space-3);">Guest Reviews</h4>
+              <p style="color: var(--text-secondary); font-size: var(--text-sm);">
+                "An absolutely magical experience. Every detail was perfect." - Sarah M.<br>
+                "The best trip we've ever taken. Highly recommended!" - John D.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Accordion Demo -->
+      <div class="demo-card" style="margin-bottom: var(--space-6);">
+        <h3 class="demo-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+          Accordion Component
+        </h3>
+        
+        <div class="accordion">
+          <div class="accordion-item open">
+            <button class="accordion-header">
+              What's included in the package?
+              <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="accordion-body">
+              <div class="accordion-content">
+                The package includes 6 nights accommodation, airport transfers, guided tours, 
+                cooking class, Seine river cruise, and travel insurance.
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item">
+            <button class="accordion-header">
+              Can I modify the itinerary?
+              <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="accordion-body">
+              <div class="accordion-content">
+                Yes, the itinerary can be customized to your preferences. Additional experiences 
+                can be added at extra cost. Please contact your travel advisor.
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item">
+            <button class="accordion-header">
+              What is the cancellation policy?
+              <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="accordion-body">
+              <div class="accordion-content">
+                Full refund if cancelled 45+ days before departure. 50% refund for 30-44 days. 
+                No refund for less than 30 days. Travel insurance covers unforeseen circumstances.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Currency Converter Demo -->
+      <div class="demo-card">
+        <h3 class="demo-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          Currency Converter
+        </h3>
+        
+        <div class="currency-converter">
+          <div class="currency-converter-row">
+            <div class="currency-input">
+              <span class="currency-input-symbol">$</span>
+              <input type="number" class="currency-input-field currency-from-input" value="8550" min="0">
+            </div>
+            
+            <select class="currency-select currency-from-select">
+              <option value="USD" selected>USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="JPY">JPY</option>
+            </select>
+            
+            <button class="currency-swap" aria-label="Swap currencies">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+              </svg>
+            </button>
+            
+            <select class="currency-select currency-to-select">
+              <option value="USD">USD</option>
+              <option value="EUR" selected>EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="JPY">JPY</option>
+            </select>
+            
+            <div class="currency-input">
+              <span class="currency-input-symbol">€</span>
+              <input type="text" class="currency-input-field currency-to-input" readonly>
+            </div>
+          </div>
+          
+          <div class="currency-result">
+            <div class="currency-result-label">Converted Amount</div>
+            <div class="currency-result-amount">€7,866.00</div>
+            <div class="currency-result-rate">1 USD = 0.9200 EUR</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="demo-separator"></div>
+    
+    <!-- Interactive Section -->
+    <section id="interactive" class="demo-section">
+      <h2 class="demo-title">Interactive Elements</h2>
+      <p class="demo-subtitle">
+        Interactive components with real-time feedback.
+      </p>
+      
+      <div class="demo-grid">
+        <!-- Toast Notifications -->
+        <div class="demo-card">
+          <h3 class="demo-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Toast Notifications
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            Non-intrusive notifications for user feedback.
+          </p>
+          <div class="demo-controls">
+            <button class="btn btn-primary" onclick="QuotationEngine.toast.show('Success!', 'success')">
+              Success
+            </button>
+            <button class="btn btn-secondary" onclick="QuotationEngine.toast.show('Information', 'info')">
+              Info
+            </button>
+            <button class="btn btn-secondary" style="background: var(--color-danger); color: white;" onclick="QuotationEngine.toast.show('Error occurred', 'error')">
+              Error
+            </button>
+          </div>
+        </div>
+        
+        <!-- Confirmation Dialog -->
+        <div class="demo-card">
+          <h3 class="demo-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Confirmation Dialog
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            Modal dialogs for important user actions.
+          </p>
+          <div class="demo-controls">
+            <button class="btn btn-primary" onclick="QuotationEngine.confirmDialog.show({
+              title: 'Confirm Booking',
+              message: 'Are you sure you want to book this itinerary?',
+              type: 'warning',
+              onConfirm: () => QuotationEngine.toast.show('Booking confirmed!', 'success')
+            })">
+              Show Dialog
+            </button>
+          </div>
+        </div>
+        
+        <!-- Progress Tracker -->
+        <div class="demo-card">
+          <h3 class="demo-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Progress Tracker
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+            Visual progress indicator for multi-step processes.
+          </p>
+          <div class="booking-progress" style="margin-bottom: var(--space-4);"></div>
+          <div class="demo-controls">
+            <button class="btn btn-secondary" onclick="QuotationEngine.progress.prev()">
+              Previous
+            </button>
+            <button class="btn btn-primary" onclick="QuotationEngine.progress.next()">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="demo-separator"></div>
+    
+    <!-- Features Section -->
+    <section id="features" class="demo-section">
+      <h2 class="demo-title">Features</h2>
+      <p class="demo-subtitle">
+        Complete feature set of the Travel Quotation Engine.
+      </p>
+      
+      <div class="demo-feature-list">
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Responsive Design</h4>
+            <p>Works perfectly on all devices</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Dark Mode</h4>
+            <p>Automatic and manual theme toggle</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 1l4 4-4 4"/>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+              <path d="M7 23l-4-4 4-4"/>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>RTL Support</h4>
+            <p>Full bidirectional text support</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Print Optimized</h4>
+            <p>Beautiful print layouts</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Lazy Loading</h4>
+            <p>Optimized image loading</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Animations</h4>
+            <p>Smooth, purposeful motion</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Accessibility</h4>
+            <p>WCAG 2.1 compliant</p>
+          </div>
+        </div>
+        
+        <div class="demo-feature-item">
+          <div class="demo-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="demo-feature-text">
+            <h4>Enterprise Quality</h4>
+            <p>Production-ready code</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Confirmation Dialog -->
+  <div class="confirm-dialog" role="dialog" aria-modal="true">
+    <div class="confirm-dialog-content">
+      <div class="confirm-dialog-icon confirm-dialog-icon-warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h3 class="confirm-dialog-title">Confirm Action</h3>
+      <p class="confirm-dialog-message">Are you sure you want to proceed?</p>
+      <div class="confirm-dialog-actions">
+        <button class="btn btn-secondary confirm-dialog-cancel">Cancel</button>
+        <button class="btn btn-primary confirm-dialog-confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading Overlay -->
+  <div class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading...</div>
+  </div>
+  
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" aria-label="Toggle dark mode">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
+  
+  <!-- Print Button -->
+  <button class="print-btn" aria-label="Print quotation">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+  </button>
+  
+  <!-- Scroll to Top -->
+  <button class="scroll-top" aria-label="Scroll to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="18 15 12 9 6 15"/>
+    </svg>
+  </button>
+  
+  <!-- Scripts -->
+  <script src="engine.js"></script>
+  <script src="enhanced.js"></script>
+</body>
+</html>

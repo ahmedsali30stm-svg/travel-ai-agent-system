@@ -1,0 +1,274 @@
+# Prometheus Configuration
+
+> Prometheus monitoring configuration for the Travel AI Agent Platform.
+
+---
+
+## Overview
+
+Prometheus is used for metrics collection, alerting, and monitoring across all environments.
+
+---
+
+## Prometheus Configuration
+
+```yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# Alert rules
+rule_files:
+  - "alerts/*.yml"
+
+# Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Scrape configs
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Travel AI API
+  - job_name: 'travel-ai-api'
+    static_configs:
+      - targets: ['api-gateway:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: '/metrics'
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+    metrics_path: '/metrics'
+
+  # Node Exporter (system metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Scraper metrics
+  - job_name: 'scraper'
+    static_configs:
+      - targets: ['scraper:3001']
+    metrics_path: '/metrics'
+```
+
+---
+
+## Alert Rules
+
+### API Alerts
+
+```yaml
+groups:
+  - name: api-alerts
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% over the last 5 minutes"
+
+      # High latency
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency detected"
+          description: "p95 latency is {{ $value }}s"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up{job="travel-ai-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API service is down"
+          description: "Travel AI API service has been down for more than 1 minute"
+```
+
+### Database Alerts
+
+```yaml
+  - name: database-alerts
+    rules:
+      # Connection pool exhausted
+      - alert: ConnectionPoolExhausted
+        expr: pg_stat_activity_count > pg_settings_max_connections * 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Connection usage is {{ $value }}%"
+
+      # Replication lag
+      - alert: ReplicationLag
+        expr: pg_replication_lag > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database replication lag detected"
+          description: "Replication lag is {{ $value }}s"
+```
+
+### Cache Alerts
+
+```yaml
+  - name: cache-alerts
+    rules:
+      # High memory usage
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis memory usage is {{ $value }}%"
+
+      # High eviction rate
+      - alert: RedisHighEviction
+        expr: rate(redis_evicted_keys_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis eviction rate high"
+          description: "Redis is evicting {{ $value }} keys/second"
+```
+
+### Scraper Alerts
+
+```yaml
+  - name: scraper-alerts
+    rules:
+      # High failure rate
+      - alert: ScraperHighFailureRate
+        expr: rate(scraper_failures_total[5m]) / rate(scraper_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Scraper failure rate high"
+          description: "Scraper failure rate is {{ $value }}%"
+
+      # Browser pool exhausted
+      - alert: BrowserPoolExhausted
+        expr: scraper_browser_pool_available == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Browser pool exhausted"
+          description: "No available browsers in the pool"
+```
+
+---
+
+## Recording Rules
+
+```yaml
+groups:
+  - name: recording-rules
+    rules:
+      # API request rate
+      - record: api:request_rate:rate5m
+        expr: rate(http_requests_total[5m])
+
+      # API error rate
+      - record: api:error_rate:rate5m
+        expr: rate(http_requests_total{status=~"5.."}[5m])
+
+      # API latency p95
+      - record: api:latency_p95:histogram
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+      # API latency p99
+      - record: api:latency_p99:histogram
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+
+      # Scraper success rate
+      - record: scraper:success_rate:rate5m
+        expr: rate(scraper_successes_total[5m]) / rate(scraper_requests_total[5m])
+```
+
+---
+
+## Dashboard Queries
+
+### API Overview
+
+```promql
+# Request rate
+sum(rate(http_requests_total[5m])) by (method, status)
+
+# Error rate
+sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+
+# Latency percentiles
+histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))
+histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+```
+
+### Database Overview
+
+```promql
+# Connection count
+pg_stat_activity_count
+
+# Query rate
+rate(pg_stat_database_xact_commit[5m])
+
+# Cache hit ratio
+pg_stat_database_blks_hit / pg_stat_database_blks_read
+```
+
+### Redis Overview
+
+```promql
+# Memory usage
+redis_memory_used_bytes / redis_memory_max_bytes
+
+# Hit rate
+redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total)
+
+# Command rate
+rate(redis_commands_processed_total[5m])
+```
+
+### Scraper Overview
+
+```promql
+# Request rate
+rate(scraper_requests_total[5m])
+
+# Success rate
+rate(scraper_successes_total[5m]) / rate(scraper_requests_total[5m])
+
+# Average duration
+rate(scraper_duration_seconds_sum[5m]) / rate(scraper_duration_seconds_count[5m])
+```

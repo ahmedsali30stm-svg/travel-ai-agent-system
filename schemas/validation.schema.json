@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://travel-ai.com/schemas/validation.schema.json",
+  "title": "Validation Result Schema",
+  "description": "Schema for validation results across the system",
+  "type": "object",
+  "required": ["valid", "timestamp"],
+  "properties": {
+    "valid": {
+      "type": "boolean",
+      "description": "Whether validation passed"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ValidationError"
+      },
+      "description": "List of validation errors"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ValidationWarning"
+      },
+      "description": "List of validation warnings"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "validator_version": {
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ValidationError": {
+      "type": "object",
+      "required": ["code", "message", "path"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "REQUIRED",
+            "TYPE",
+            "FORMAT",
+            "MIN_LENGTH",
+            "MAX_LENGTH",
+            "MINIMUM",
+            "MAXIMUM",
+            "PATTERN",
+            "ENUM",
+            "UNIQUE",
+            "DEPENDENCY",
+            "CUSTOM"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string",
+          "description": "JSON path to the error field"
+        },
+        "value": {
+          "description": "Actual value"
+        },
+        "expected": {
+          "description": "Expected value or constraint"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "critical"],
+          "default": "error"
+        }
+      }
+    },
+    "ValidationWarning": {
+      "type": "object",
+      "required": ["code", "message", "path"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "DEPRECATED",
+            "UNSUPPORTED",
+            "INSECURE",
+            "PERFORMANCE",
+            "BEST_PRACTICE"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "suggestion": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "low", "medium"],
+          "default": "info"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,585 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://travel-ai.com/schemas/itinerary.schema.json",
+  "title": "Itinerary Schema",
+  "description": "Schema for travel itinerary output",
+  "type": "object",
+  "required": ["itinerary_id", "request_id", "user_id", "status", "summary", "days"],
+  "properties": {
+    "itinerary_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "confirmed", "completed", "cancelled"]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "summary": {
+      "$ref": "#/definitions/ItinerarySummary"
+    },
+    "destination": {
+      "$ref": "#/definitions/DestinationInfo"
+    },
+    "dates": {
+      "$ref": "#/definitions/TravelDates"
+    },
+    "travelers": {
+      "$ref": "#/definitions/TravelerInfo"
+    },
+    "days": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ItineraryDay"
+      },
+      "minItems": 1
+    },
+    "flights": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FlightInfo"
+      }
+    },
+    "hotels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/HotelInfo"
+      }
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ActivityInfo"
+      }
+    },
+    "transportation": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportInfo"
+      }
+    },
+    "total_cost": {
+      "$ref": "#/definitions/CostBreakdown"
+    },
+    "booking_references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BookingReference"
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Document"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "agents_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ItinerarySummary": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "highlights": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "total_nights": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "total_days": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "DestinationInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          }
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        }
+      }
+    },
+    "TravelDates": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "nights": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "TravelerInfo": {
+      "type": "object",
+      "properties": {
+        "adults": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "children": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rooms": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "ItineraryDay": {
+      "type": "object",
+      "properties": {
+        "day_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "title": {
+          "type": "string"
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DayActivity"
+          }
+        },
+        "meals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MealInfo"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "DayActivity": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "pattern": "^[0-9]{2}:[0-9]{2}$"
+        },
+        "end_time": {
+          "type": "string",
+          "pattern": "^[0-9]{2}:[0-9]{2}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["activity", "transport", "meal", "free_time", "check_in", "check_out"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "address": { "type": "string" },
+            "coordinates": {
+              "type": "object",
+              "properties": {
+                "latitude": { "type": "number" },
+                "longitude": { "type": "number" }
+              }
+            }
+          }
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cost": {
+          "$ref": "#/definitions/Money"
+        },
+        "booking_reference": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "FlightInfo": {
+      "type": "object",
+      "properties": {
+        "flight_id": {
+          "type": "string"
+        },
+        "airline": {
+          "type": "string"
+        },
+        "flight_number": {
+          "type": "string"
+        },
+        "departure": {
+          "type": "object",
+          "properties": {
+            "airport": { "type": "string" },
+            "city": { "type": "string" },
+            "date": { "type": "string", "format": "date" },
+            "time": { "type": "string" },
+            "terminal": { "type": "string" }
+          }
+        },
+        "arrival": {
+          "type": "object",
+          "properties": {
+            "airport": { "type": "string" },
+            "city": { "type": "string" },
+            "date": { "type": "string", "format": "date" },
+            "time": { "type": "string" },
+            "terminal": { "type": "string" }
+          }
+        },
+        "duration_minutes": {
+          "type": "integer"
+        },
+        "stops": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cabin_class": {
+          "type": "string",
+          "enum": ["economy", "premium_economy", "business", "first"]
+        },
+        "price": {
+          "$ref": "#/definitions/Money"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "pending", "cancelled"]
+        }
+      }
+    },
+    "HotelInfo": {
+      "type": "object",
+      "properties": {
+        "hotel_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "star_rating": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "address": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "check_in": {
+          "type": "string",
+          "format": "date"
+        },
+        "check_out": {
+          "type": "string",
+          "format": "date"
+        },
+        "nights": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "room_type": {
+          "type": "string"
+        },
+        "board_type": {
+          "type": "string"
+        },
+        "price_per_night": {
+          "$ref": "#/definitions/Money"
+        },
+        "total_price": {
+          "$ref": "#/definitions/Money"
+        },
+        "amenities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cancellation_policy": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "pending", "cancelled"]
+        }
+      }
+    },
+    "ActivityInfo": {
+      "type": "object",
+      "properties": {
+        "activity_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "start_time": {
+          "type": "string"
+        },
+        "duration_minutes": {
+          "type": "integer"
+        },
+        "location": {
+          "type": "string"
+        },
+        "price": {
+          "$ref": "#/definitions/Money"
+        },
+        "booking_reference": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "pending", "cancelled"]
+        }
+      }
+    },
+    "TransportInfo": {
+      "type": "object",
+      "properties": {
+        "transport_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["taxi", "rideshare", "public_transit", "car_rental", "private_transfer", "shuttle"]
+        },
+        "provider": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "time": {
+          "type": "string"
+        },
+        "duration_minutes": {
+          "type": "integer"
+        },
+        "price": {
+          "$ref": "#/definitions/Money"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "pending", "cancelled"]
+        }
+      }
+    },
+    "MealInfo": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["breakfast", "lunch", "dinner", "snack"]
+        },
+        "restaurant": {
+          "type": "string"
+        },
+        "cuisine": {
+          "type": "string"
+        },
+        "price": {
+          "$ref": "#/definitions/Money"
+        }
+      }
+    },
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "converted_amount": {
+          "type": "number"
+        },
+        "converted_currency": {
+          "type": "string"
+        }
+      }
+    },
+    "CostBreakdown": {
+      "type": "object",
+      "properties": {
+        "flights": {
+          "$ref": "#/definitions/Money"
+        },
+        "hotels": {
+          "$ref": "#/definitions/Money"
+        },
+        "activities": {
+          "$ref": "#/definitions/Money"
+        },
+        "transportation": {
+          "$ref": "#/definitions/Money"
+        },
+        "meals": {
+          "$ref": "#/definitions/Money"
+        },
+        "other": {
+          "$ref": "#/definitions/Money"
+        },
+        "total": {
+          "$ref": "#/definitions/Money"
+        }
+      }
+    },
+    "BookingReference": {
+      "type": "object",
+      "properties": {
+        "reference_id": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["flight", "hotel", "activity", "transport"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "pending", "cancelled"]
+        },
+        "confirmation_code": {
+          "type": "string"
+        }
+      }
+    },
+    "Document": {
+      "type": "object",
+      "properties": {
+        "doc_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["itinerary", "voucher", "ticket", "invoice", "visa", "insurance"]
+        },
+        "format": {
+          "type": "string",
+          "enum": ["pdf", "html", "json"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}

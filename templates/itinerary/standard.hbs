@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="{{language}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} - Travel Itinerary</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: {{brand.font_family | default 'Arial, sans-serif'}};
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      background: {{brand.primary_color | default '#1a73e8'}};
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header img {
+      max-height: 60px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .summary {
+      padding: 30px 40px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-item label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .summary-item value {
+      font-size: 18px;
+      font-weight: bold;
+      color: {{brand.primary_color | default '#1a73e8'}};
+    }
+
+    .section {
+      padding: 30px 40px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .section-title {
+      font-size: 20px;
+      color: {{brand.primary_color | default '#1a73e8'}};
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid {{brand.primary_color | default '#1a73e8'}};
+    }
+
+    .day {
+      margin-bottom: 30px;
+    }
+
+    .day-header {
+      background: {{brand.primary_color | default '#1a73e8'}};
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px 5px 0 0;
+      font-weight: bold;
+    }
+
+    .day-content {
+      border: 1px solid #e0e0e0;
+      border-top: none;
+      padding: 15px;
+      border-radius: 0 0 5px 5px;
+    }
+
+    .activity {
+      display: flex;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed #e0e0e0;
+    }
+
+    .activity:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .activity-time {
+      min-width: 80px;
+      font-weight: bold;
+      color: {{brand.primary_color | default '#1a73e8'}};
+    }
+
+    .activity-details {
+      flex: 1;
+    }
+
+    .activity-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .activity-description {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .activity-price {
+      text-align: right;
+      font-weight: bold;
+      color: #34a853;
+    }
+
+    .hotel-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .hotel-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .hotel-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .hotel-rating {
+      color: #f4b400;
+    }
+
+    .hotel-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .hotel-details dt {
+      color: #666;
+    }
+
+    .hotel-details dd {
+      font-weight: bold;
+    }
+
+    .cost-summary {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .cost-total {
+      font-size: 20px;
+      font-weight: bold;
+      border-top: 2px solid #333;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .footer {
+      background: #333;
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+
+    .footer p {
+      opacity: 0.8;
+      font-size: 14px;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .container {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      {{#if brand.logo_url}}
+        <img src="{{brand.logo_url}}" alt="{{brand.name}}">
+      {{/if}}
+      <h1>{{title}}</h1>
+      <p>{{destination.name}}, {{destination.country}}</p>
+    </div>
+
+    <div class="summary">
+      <div class="summary-grid">
+        <div class="summary-item">
+          <label>Dates</label>
+          <value>{{formatDate dates.start_date}} - {{formatDate dates.end_date}}</value>
+        </div>
+        <div class="summary-item">
+          <label>Duration</label>
+          <value>{{dates.nights}} Nights</value>
+        </div>
+        <div class="summary-item">
+          <label>Travelers</label>
+          <value>{{travelers.adults}} Adults</value>
+        </div>
+        <div class="summary-item">
+          <label>Total Cost</label>
+          <value>{{formatCurrency total_cost.total.amount total_cost.total.currency}}</value>
+        </div>
+      </div>
+    </div>
+
+    {{#if flights}}
+    <div class="section">
+      <h2 class="section-title">Flights</h2>
+      {{#each flights}}
+      <div class="hotel-card">
+        <div class="hotel-header">
+          <span class="hotel-name">{{airline}} {{flight_number}}</span>
+          <span class="hotel-rating">{{cabin_class}}</span>
+        </div>
+        <div class="hotel-details">
+          <dt>Departure</dt>
+          <dd>{{departure.airport}} - {{formatDate departure.date}} {{departure.time}}</dd>
+          <dt>Arrival</dt>
+          <dd>{{arrival.airport}} - {{formatDate arrival.date}} {{arrival.time}}</dd>
+          <dt>Duration</dt>
+          <dd>{{duration_minutes}} minutes</dd>
+          <dt>Price</dt>
+          <dd>{{formatCurrency price.amount price.currency}}</dd>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if hotels}}
+    <div class="section">
+      <h2 class="section-title">Accommodation</h2>
+      {{#each hotels}}
+      <div class="hotel-card">
+        <div class="hotel-header">
+          <span class="hotel-name">{{name}}</span>
+          <span class="hotel-rating">{{star_rating}} ★</span>
+        </div>
+        <div class="hotel-details">
+          <dt>Check-in</dt>
+          <dd>{{formatDate check_in}}</dd>
+          <dt>Check-out</dt>
+          <dd>{{formatDate check_out}}</dd>
+          <dt>Room Type</dt>
+          <dd>{{room_type}}</dd>
+          <dt>Board</dt>
+          <dd>{{board_type}}</dd>
+          <dt>Price/Night</dt>
+          <dd>{{formatCurrency price_per_night.amount price_per_night.currency}}</dd>
+          <dt>Total</dt>
+          <dd>{{formatCurrency total_price.amount total_price.currency}}</dd>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    <div class="section">
+      <h2 class="section-title">Daily Itinerary</h2>
+      {{#each days}}
+      <div class="day">
+        <div class="day-header">
+          Day {{day_number}} - {{formatDate date}} - {{title}}
+        </div>
+        <div class="day-content">
+          {{#each activities}}
+          <div class="activity">
+            <div class="activity-time">
+              {{time}}
+              {{#if end_time}}
+                - {{end_time}}
+              {{/if}}
+            </div>
+            <div class="activity-details">
+              <div class="activity-title">{{title}}</div>
+              {{#if description}}
+                <div class="activity-description">{{description}}</div>
+              {{/if}}
+              {{#if location}}
+                <div class="activity-description">📍 {{location.name}}</div>
+              {{/if}}
+            </div>
+            {{#if cost}}
+            <div class="activity-price">
+              {{formatCurrency cost.amount cost.currency}}
+            </div>
+            {{/if}}
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Cost Summary</h2>
+      <div class="cost-summary">
+        {{#if total_cost.flights}}
+        <div class="cost-row">
+          <span>Flights</span>
+          <span>{{formatCurrency total_cost.flights.amount total_cost.flights.currency}}</span>
+        </div>
+        {{/if}}
+        {{#if total_cost.hotels}}
+        <div class="cost-row">
+          <span>Hotels</span>
+          <span>{{formatCurrency total_cost.hotels.amount total_cost.hotels.currency}}</span>
+        </div>
+        {{/if}}
+        {{#if total_cost.activities}}
+        <div class="cost-row">
+          <span>Activities</span>
+          <span>{{formatCurrency total_cost.activities.amount total_cost.activities.currency}}</span>
+        </div>
+        {{/if}}
+        {{#if total_cost.transportation}}
+        <div class="cost-row">
+          <span>Transportation</span>
+          <span>{{formatCurrency total_cost.transportation.amount total_cost.transportation.currency}}</span>
+        </div>
+        {{/if}}
+        {{#if total_cost.other}}
+        <div class="cost-row">
+          <span>Other</span>
+          <span>{{formatCurrency total_cost.other.amount total_cost.other.currency}}</span>
+        </div>
+        {{/if}}
+        <div class="cost-row cost-total">
+          <span>Total</span>
+          <span>{{formatCurrency total_cost.total.amount total_cost.total.currency}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Generated by {{brand.name | default 'TravelAI'}}</p>
+      <p>Itinerary ID: {{itinerary_id}}</p>
+      <p>Generated at: {{formatDateTime metadata.generated_at}}</p>
+    </div>
+  </div>
+</body>
+</html>
