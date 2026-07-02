@@ -45,6 +45,7 @@ export interface HotelResult {
   breakfastAvailable: boolean;
   cancellationPolicy?: CancellationPolicy;
   amenities?: string[];
+  taxesAndFees?: number;
   availability: boolean;
 }
 

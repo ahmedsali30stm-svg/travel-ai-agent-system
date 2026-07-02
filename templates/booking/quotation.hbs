@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Quotation — {{selection.hotel.name}}</title>
+<style>
+:root {
+  --brand: #2563eb;
+  --brand-light: #3b82f6;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,.1), 0 4px 10px rgba(0,0,0,.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--gray-900);
+  background: var(--gray-100);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, var(--brand) 0%, #1d4ed8 100%);
+  color: #fff;
+  padding: 32px 40px;
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--success), var(--brand-light));
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.brand span { color: var(--accent); }
+.reference {
+  text-align: right;
+}
+.reference-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: .7;
+}
+.reference-value {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  opacity: .9;
+}
+.header-title {
+  margin-top: 24px;
+}
+.header-title h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.header-title p {
+  font-size: 14px;
+  opacity: .75;
+  margin-top: 4px;
+}
+.hotel-section {
+  padding: 32px 40px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--gray-200);
+}
+.hotel-image {
+  width: 180px;
+  height: 135px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--gray-100);
+}
+.hotel-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hotel-info { flex: 1; min-width: 0; }
+.hotel-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1.3;
+}
+.hotel-address {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+.hotel-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.badge-rating {
+  background: #fef3c7;
+  color: #92400e;
+}
+.badge-stars {
+  background: #eff6ff;
+  color: #1e40af;
+}
+.badge-reviews {
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+.stay-details {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+.stay-item {
+  padding: 20px 24px;
+  text-align: center;
+  border-right: 1px solid var(--gray-200);
+}
+.stay-item:last-child { border-right: none; }
+.stay-item-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+}
+.stay-item-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+.price-section {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.price-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 16px;
+}
+.price-table { width: 100%; border-collapse: collapse; }
+.price-table tr { border-bottom: 1px solid var(--gray-100); }
+.price-table tr:last-child { border-bottom: none; }
+.price-table td {
+  padding: 12px 0;
+  font-size: 15px;
+}
+.price-table td:last-child {
+  text-align: right;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.price-table .total td {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brand);
+  padding-top: 16px;
+  border-top: 2px solid var(--gray-200);
+}
+.room-section {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.room-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 16px;
+}
+.room-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.room-card:last-child { margin-bottom: 0; }
+.room-name { font-weight: 500; }
+.room-tags { display: flex; gap: 6px; margin-top: 4px; }
+.tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.tag-breakfast { background: #dbeafe; color: #1e40af; }
+.tag-refundable { background: #d1fae5; color: #065f46; }
+.tag-nonrefund { background: #fee2e2; color: #991b1b; }
+.amenities-section {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.amenities-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 16px;
+}
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.amenity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--gray-50);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+.amenity-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--success);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cancellation-section {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.cancellation-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+.cancellation-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.cancellation-free { background: #d1fae5; color: #065f46; }
+.cancellation-partial { background: #fef3c7; color: #92400e; }
+.cancellation-none { background: #fee2e2; color: #991b1b; }
+.cancellation-desc {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.7;
+}
+.recommendation-section {
+  padding: 32px 40px;
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  border-bottom: 1px solid var(--gray-200);
+}
+.recommendation-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+.recommendation-section p {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.7;
+}
+.recommendation-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.score-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+}
+.score-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--brand);
+}
+.footer {
+  padding: 24px 40px;
+  text-align: center;
+}
+.footer p {
+  font-size: 12px;
+  color: var(--gray-400);
+}
+.footer .legal {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--gray-400);
+}
+@media (max-width: 640px) {
+  .container { margin: 16px; }
+  .header { padding: 24px 20px; }
+  .header-title h1 { font-size: 22px; }
+  .hotel-section { flex-direction: column; padding: 24px 20px; }
+  .hotel-image { width: 100%; height: 200px; }
+  .stay-details { grid-template-columns: repeat(2, 1fr); }
+  .stay-item:nth-child(2) { border-right: none; }
+  .stay-item:nth-child(3), .stay-item:nth-child(4) { border-top: 1px solid var(--gray-200); }
+  .price-section, .room-section, .amenities-section, .cancellation-section, .recommendation-section { padding: 24px 20px; }
+  .amenities-grid { grid-template-columns: 1fr; }
+  .footer { padding: 20px; }
+}
+@media print {
+  body { background: #fff; }
+  .container { margin: 0; max-width: none; box-shadow: none; border-radius: 0; }
+  .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .recommendation-section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .badge-rating, .badge-stars, .badge-reviews { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .tag-breakfast, .tag-refundable, .tag-nonrefund { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .recommendation-score { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .room-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">Travel<span>AI</span></div>
+      <div class="reference">
+        <div class="reference-label">Quotation Ref</div>
+        <div class="reference-value">{{selection.id}}</div>
+      </div>
+    </div>
+    <div class="header-title">
+      <h1>Hotel Quotation</h1>
+      <p>Prepared for your travel itinerary</p>
+    </div>
+  </div>
+
+  <div class="hotel-section">
+    {{#if selection.hotel.images.length}}
+    <div class="hotel-image">
+      <img src="{{selection.hotel.images.[0].url}}" alt="{{selection.hotel.name}}">
+    </div>
+    {{/if}}
+    <div class="hotel-info">
+      <div class="hotel-name">{{selection.hotel.name}}</div>
+      {{#if selection.hotel.address}}
+      <div class="hotel-address">{{selection.hotel.address}}</div>
+      {{/if}}
+      <div class="hotel-badges">
+        <span class="badge badge-rating">★ {{selection.hotel.rating}}</span>
+        {{#if selection.hotel.starRating}}
+        <span class="badge badge-stars">{{selection.hotel.starRating}}★ Hotel</span>
+        {{/if}}
+        <span class="badge badge-reviews">{{selection.hotel.reviewCount}} reviews</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stay-details">
+    <div class="stay-item">
+      <div class="stay-item-label">Check-in</div>
+      <div class="stay-item-value">{{formatDate searchParams.checkIn}}</div>
+    </div>
+    <div class="stay-item">
+      <div class="stay-item-label">Check-out</div>
+      <div class="stay-item-value">{{formatDate searchParams.checkOut}}</div>
+    </div>
+    <div class="stay-item">
+      <div class="stay-item-label">Guests</div>
+      <div class="stay-item-value">{{searchParams.guests}}</div>
+    </div>
+    <div class="stay-item">
+      <div class="stay-item-label">Nights</div>
+      <div class="stay-item-value">{{nights}}</div>
+    </div>
+  </div>
+
+  <div class="price-section">
+    <h2>Price Breakdown</h2>
+    <table class="price-table">
+      <tr>
+        <td>Price per night</td>
+        <td>{{formatCurrency hotel.pricePerNight hotel.currency}}</td>
+      </tr>
+      <tr>
+        <td>Number of nights</td>
+        <td>{{nights}}</td>
+      </tr>
+      {{#if hotel.taxesAndFees}}
+      <tr>
+        <td>Taxes & fees</td>
+        <td>{{formatCurrency hotel.taxesAndFees hotel.currency}}</td>
+      </tr>
+      {{/if}}
+      <tr class="total">
+        <td>Total</td>
+        <td>{{formatCurrency total hotel.currency}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="room-section">
+    <h2>Room Details</h2>
+    {{#each hotel.roomTypes}}
+    <div class="room-card">
+      <div style="flex:1">
+        <div class="room-name">{{name}}</div>
+        <div class="room-tags">
+          {{#if breakfastIncluded}}<span class="tag tag-breakfast">Breakfast</span>{{/if}}
+          {{#if isRefundable}}<span class="tag tag-refundable">Refundable</span>{{/if}}
+          {{#unless isRefundable}}<span class="tag tag-nonrefund">Non-refundable</span>{{/unless}}
+        </div>
+      </div>
+      {{#if price}}
+      <div style="font-weight:600;color:var(--gray-800);text-align:right">
+        {{formatCurrency price ../hotel.currency}}
+      </div>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="amenities-section">
+    <h2>Amenities</h2>
+    <div class="amenities-grid">
+      {{#each hotel.amenities}}
+      <div class="amenity">
+        <span class="amenity-icon">✓</span>
+        {{this}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="cancellation-section">
+    <h2>Cancellation Policy</h2>
+    {{#if hotel.cancellationPolicy}}
+    <div class="cancellation-status {{#if (eq hotel.cancellationPolicy.type 'free')}}cancellation-free{{else if (eq hotel.cancellationPolicy.type 'partial_refund')}}cancellation-partial{{else}}cancellation-none{{/if}}">
+      {{#if (eq hotel.cancellationPolicy.type 'free')}}Free cancellation
+      {{else if (eq hotel.cancellationPolicy.type 'partial_refund')}}Partial refund available
+      {{else}}Non-refundable{{/if}}
+    </div>
+    <p class="cancellation-desc">{{hotel.cancellationPolicy.description}}</p>
+    {{else}}
+    <p class="cancellation-desc">Standard cancellation policy applies. Please check with the hotel for details.</p>
+    {{/if}}
+  </div>
+
+  <div class="recommendation-section">
+    <h2>Why We Recommend This Hotel</h2>
+    <p>{{selection.decisionSummary.recommendation}}</p>
+    <div class="recommendation-score">
+      <span class="score-label">Decision Score</span>
+      <span class="score-value">{{selection.decisionSummary.totalScore}}</span>
+      <span style="font-size:14px;color:var(--gray-500)">/ 1.00</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Generated by TravelAI Agent System | {{formatDateTime metadata.generatedAt}}</p>
+    <p class="legal">This quotation is for informational purposes and does not constitute a confirmed booking.</p>
+  </div>
+
+</div>
+</body>
+</html>

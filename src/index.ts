@@ -8,6 +8,7 @@ import { errorHandler } from './api/middleware/errorHandler.js';
 import { requestLogger } from './api/middleware/requestLogger.js';
 import { healthRoutes } from './api/routes/health.js';
 import { searchRoutes } from './api/routes/search.js';
+import { hotelRoutes } from './api/routes/hotels.js';
 import { agentRoutes } from './api/routes/agents.js';
 import { tripRoutes } from './api/routes/trips.js';
 import { authRoutes } from './api/routes/auth.js';
@@ -46,6 +47,7 @@ app.use('/health', healthRoutes);
 // API routes
 app.use(`/api/${config.app.apiVersion}/auth`, authRoutes);
 app.use(`/api/${config.app.apiVersion}/search`, searchRoutes);
+app.use(`/api/${config.app.apiVersion}/hotels`, hotelRoutes);
 app.use(`/api/${config.app.apiVersion}/agents`, agentRoutes);
 app.use(`/api/${config.app.apiVersion}/trips`, tripRoutes);
 
