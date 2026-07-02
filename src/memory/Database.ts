@@ -1,12 +1,8 @@
+import { Pool, PoolClient, QueryResult } from 'pg';
 import { config } from '../config/index.js';
 import { createContextLogger } from '../utils/logger.js';
 
 const logger = createContextLogger({ component: 'Database' });
-
-interface QueryResult<T = any> {
-  rows: T[];
-  rowCount: number;
-}
 
 interface DatabaseConfig {
   host: string;
@@ -20,23 +16,38 @@ interface DatabaseConfig {
 }
 
 export class Database {
-  private pool: any;
+  private pool: Pool | null = null;
   private isConnected = false;
 
   constructor() {
-    // Initialize database pool
-    // In production, use pg Pool or Prisma
-    this.pool = null;
+    // Pool is created on connect() to allow graceful startup
   }
 
   async connect(): Promise<void> {
     try {
-      // Parse connection string
       const dbConfig = this.parseConnectionString(config.database.url);
-      
-      // Create pool
-      // this.pool = new Pool(dbConfig);
-      
+
+      this.pool = new Pool({
+        ...dbConfig,
+        ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
+        max: config.database.maxConnections || 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+      });
+
+      this.pool.on('error', (err) => {
+        logger.error('Unexpected database pool error:', err);
+      });
+
+      this.pool.on('connect', () => {
+        logger.debug('New database connection acquired');
+      });
+
+      // Test the connection
+      const client = await this.pool.connect();
+      await client.query('SELECT 1');
+      client.release();
+
       this.isConnected = true;
       logger.info('Database connected');
     } catch (error) {
@@ -47,8 +58,11 @@ export class Database {
 
   async disconnect(): Promise<void> {
     try {
-      // await this.pool.end();
+      if (this.pool) {
+        await this.pool.end();
+      }
       this.isConnected = false;
+      this.pool = null;
       logger.info('Database disconnected');
     } catch (error) {
       logger.error('Database disconnection failed:', error);
@@ -59,16 +73,13 @@ export class Database {
     text: string,
     params?: any[]
   ): Promise<QueryResult<T>> {
-    if (!this.isConnected) {
+    if (!this.isConnected || !this.pool) {
       throw new Error('Database not connected');
     }
 
     try {
-      // const result = await this.pool.query(text, params);
-      // return { rows: result.rows, rowCount: result.rowCount };
-      
-      // Mock implementation
-      return { rows: [], rowCount: 0 };
+      const result = await this.pool.query<T>(text, params);
+      return result;
     } catch (error) {
       logger.error({ text, params, error }, 'Query failed');
       throw error;
@@ -78,23 +89,26 @@ export class Database {
   async transaction<T>(
     callback: (query: <R>(text: string, params?: any[]) => Promise<QueryResult<R>>) => Promise<T>
   ): Promise<T> {
-    if (!this.isConnected) {
+    if (!this.isConnected || !this.pool) {
       throw new Error('Database not connected');
     }
 
-    const client = await this.pool.connect();
-    
+    const client: PoolClient = await this.pool.connect();
+
     try {
       await client.query('BEGIN');
-      
+
       const result = await callback(
-        <R>(text: string, params?: any[]) => 
-          client.query(text, params).then(res => ({
+        <R>(text: string, params?: any[]) =>
+          client.query<R>(text, params).then(res => ({
             rows: res.rows,
             rowCount: res.rowCount,
+            command: res.command,
+            oid: res.oid,
+            fields: res.fields,
           }))
       );
-      
+
       await client.query('COMMIT');
       return result;
     } catch (error) {
@@ -107,20 +121,31 @@ export class Database {
 
   async healthCheck(): Promise<boolean> {
     try {
-      await this.query('SELECT 1');
+      if (!this.pool) return false;
+      const client = await this.pool.connect();
+      await client.query('SELECT 1');
+      client.release();
       return true;
     } catch (error) {
+      logger.error('Database health check failed:', error);
       return false;
     }
   }
 
+  getPoolStats(): { total: number; idle: number; waiting: number } | null {
+    if (!this.pool) return null;
+    return {
+      total: this.pool.totalCount,
+      idle: this.pool.idleCount,
+      waiting: this.pool.waitingCount,
+    };
+  }
+
   private parseConnectionString(url: string): DatabaseConfig {
-    // Simple PostgreSQL connection string parser
-    // Format: postgresql://user:password@host:port/database
     const match = url.match(
       /^postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/
     );
-    
+
     if (!match) {
       throw new Error('Invalid database connection string');
     }

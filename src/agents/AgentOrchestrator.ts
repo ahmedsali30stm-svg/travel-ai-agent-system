@@ -35,7 +35,7 @@ interface AgentStatus {
 
 export class AgentOrchestrator {
   private agents = new Map<string, AgentStatus>();
-  private tasks = new Map<string, { status: string; startTime: number }>();
+  private tasks = new Map<string, { status: string; startTime: number; tokensUsed: number }>();
 
   constructor() {
     this.initializeAgents();
@@ -99,7 +99,7 @@ export class AgentOrchestrator {
     }
 
     // Track task
-    this.tasks.set(requestId, { status: 'running', startTime });
+    this.tasks.set(requestId, { status: 'running', startTime, tokensUsed: 0 });
 
     try {
       const results: Record<string, any> = {};
@@ -128,7 +128,7 @@ export class AgentOrchestrator {
           try {
             results[agentName] = await this.executeAgent(agentName, request);
           } catch (error) {
-            results[agentName] = { error: error.message };
+            results[agentName] = { error: error instanceof Error ? error.message : String(error) };
           }
         }
       }
@@ -136,7 +136,8 @@ export class AgentOrchestrator {
       const duration = Date.now() - startTime;
       
       // Update task status
-      this.tasks.set(requestId, { status: 'completed', startTime });
+      const completedTask = this.tasks.get(requestId);
+      this.tasks.set(requestId, { ...completedTask!, status: 'completed', startTime });
       
       // Reset agent status
       for (const agentName of agentsToUse) {
@@ -160,14 +161,14 @@ export class AgentOrchestrator {
         metadata: {
           agentsUsed: agentsToUse,
           duration,
-          tokensUsed: 0, // Track actual token usage
+          tokensUsed: completedTask?.tokensUsed || 0,
         },
       };
     } catch (error) {
       const duration = Date.now() - startTime;
       
       // Update task status
-      this.tasks.set(requestId, { status: 'failed', startTime });
+      this.tasks.set(requestId, { status: 'failed', startTime, tokensUsed: 0 });
       
       // Reset agent status and increment error count
       for (const agentName of agentsToUse) {

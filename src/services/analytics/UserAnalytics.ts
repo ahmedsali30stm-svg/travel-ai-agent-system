@@ -1,4 +1,4 @@
-import { createContextLogger } from '../utils/logger.js';
+import { createContextLogger } from '../../utils/logger.js';
 
 const logger = createContextLogger({ component: 'UserAnalytics' });
 
@@ -151,12 +151,21 @@ export class UserAnalytics {
     const totalEvents = filteredEvents.length;
     const uniqueActions = new Set(filteredEvents.map(e => e.action)).size;
 
-    // Average session duration
-    const sessionDurations = new Map<string, number>();
+    // Average session duration - calculate from first to last event per session
+    const sessionEvents = new Map<string, Date[]>();
     for (const event of filteredEvents) {
       if (event.sessionId) {
-        const duration = sessionDurations.get(event.sessionId) || 0;
-        sessionDurations.set(event.sessionId, duration);
+        const events = sessionEvents.get(event.sessionId) || [];
+        events.push(event.timestamp);
+        sessionEvents.set(event.sessionId, events);
+      }
+    }
+    const sessionDurations = new Map<string, number>();
+    for (const [sessionId, events] of sessionEvents) {
+      if (events.length >= 2) {
+        const sorted = events.sort((a, b) => a.getTime() - b.getTime());
+        const duration = sorted[sorted.length - 1].getTime() - sorted[0].getTime();
+        sessionDurations.set(sessionId, duration / 1000); // in seconds
       }
     }
     const averageSessionDuration = sessionDurations.size > 0
@@ -177,8 +186,24 @@ export class UserAnalytics {
     // Active users
     const activeUsers = new Set(filteredEvents.map(e => e.userId)).size;
 
-    // Retention rate (simplified)
-    const retentionRate = 0; // Would need more complex calculation
+    // Retention rate - users who returned within 7 days
+    const userFirstSeen = new Map<string, Date>();
+    const userLastSeen = new Map<string, Date>();
+    for (const event of filteredEvents) {
+      const first = userFirstSeen.get(event.userId);
+      const last = userLastSeen.get(event.userId);
+      if (!first || event.timestamp < first) userFirstSeen.set(event.userId, event.timestamp);
+      if (!last || event.timestamp > last) userLastSeen.set(event.userId, event.timestamp);
+    }
+    let retainedUsers = 0;
+    for (const [userId, firstDate] of userFirstSeen) {
+      const lastDate = userLastSeen.get(userId);
+      if (lastDate) {
+        const daysDiff = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+        if (daysDiff >= 7) retainedUsers++;
+      }
+    }
+    const retentionRate = activeUsers > 0 ? retainedUsers / activeUsers : 0;
 
     return {
       totalEvents,

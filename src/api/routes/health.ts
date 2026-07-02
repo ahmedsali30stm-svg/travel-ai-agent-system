@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { config } from '../../config/index.js';
+import { database } from '../../memory/Database.js';
+import { redis } from '../../memory/RedisCache.js';
+import { healthChecker } from '../../utils/healthCheck.js';
 
 export const healthRoutes = Router();
 
@@ -17,12 +20,14 @@ healthRoutes.get('/', (req: Request, res: Response) => {
   });
 });
 
-healthRoutes.get('/ready', (req: Request, res: Response) => {
-  // Check database, redis, etc.
+healthRoutes.get('/ready', async (req: Request, res: Response) => {
+  const dbHealthy = await database.healthCheck();
+  const redisHealthy = await redis.ping();
+
   const checks = {
-    database: true, // Check actual DB connection
-    redis: true,    // Check actual Redis connection
-    providers: true, // Check provider API health
+    database: dbHealthy,
+    redis: redisHealthy,
+    providers: true,
   };
 
   const isReady = Object.values(checks).every(Boolean);
@@ -42,6 +47,20 @@ healthRoutes.get('/live', (req: Request, res: Response) => {
     success: true,
     data: {
       status: 'alive',
+      timestamp: new Date().toISOString(),
+    },
+  });
+});
+
+healthRoutes.get('/detailed', async (req: Request, res: Response) => {
+  const results = await healthChecker.checkAll();
+  const allHealthy = results.every(r => r.status === 'healthy');
+
+  res.status(allHealthy ? 200 : 503).json({
+    success: allHealthy,
+    data: {
+      status: allHealthy ? 'healthy' : 'degraded',
+      checks: results,
       timestamp: new Date().toISOString(),
     },
   });

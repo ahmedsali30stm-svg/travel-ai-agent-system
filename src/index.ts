@@ -11,14 +11,16 @@ import { searchRoutes } from './api/routes/search.js';
 import { agentRoutes } from './api/routes/agents.js';
 import { tripRoutes } from './api/routes/trips.js';
 import { authRoutes } from './api/routes/auth.js';
+import { database } from './memory/Database.js';
+import { redis } from './memory/RedisCache.js';
 
 const app = express();
 
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: config.app.env === 'production' 
-    ? ['https://yourdomain.com'] 
+  origin: config.app.env === 'production'
+    ? (process.env.CORS_ORIGINS || '').split(',').filter(Boolean)
     : ['http://localhost:3000', 'http://localhost:5173'],
   credentials: true,
 }));
@@ -65,12 +67,12 @@ app.use(errorHandler);
 async function bootstrap() {
   try {
     // Initialize database connection
-    // await prisma.$connect();
-    // logger.info('Database connected');
+    await database.connect();
+    logger.info('Database connected');
 
     // Initialize Redis
-    // await redis.connect();
-    // logger.info('Redis connected');
+    await redis.connect();
+    logger.info('Redis connected');
 
     app.listen(config.app.port, () => {
       logger.info(`🚀 Server running on port ${config.app.port}`);
@@ -87,15 +89,15 @@ async function bootstrap() {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully...');
-  // await prisma.$disconnect();
-  // await redis.disconnect();
+  await database.disconnect();
+  await redis.disconnect();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully...');
-  // await prisma.$disconnect();
-  // await redis.disconnect();
+  await database.disconnect();
+  await redis.disconnect();
   process.exit(0);
 });
 

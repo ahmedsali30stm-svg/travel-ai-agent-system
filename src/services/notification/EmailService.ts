@@ -1,5 +1,5 @@
-import { config } from '../config/index.js';
-import { createContextLogger } from '../utils/logger.js';
+import { config } from '../../config/index.js';
+import { createContextLogger } from '../../utils/logger.js';
 
 const logger = createContextLogger({ component: 'EmailService' });
 

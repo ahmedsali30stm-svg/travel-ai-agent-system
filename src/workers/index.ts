@@ -15,6 +15,7 @@ interface WorkerJob {
   completedAt?: Date;
   failedAt?: Date;
   error?: string;
+  history: { status: string; timestamp: Date; error?: string }[];
 }
 
 type JobProcessor = (data: any) => Promise<void>;
@@ -24,6 +25,7 @@ export class Worker {
   private processors = new Map<string, JobProcessor>();
   private isProcessing = new Map<string, boolean>();
   private pollInterval = 1000;
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     // Start polling for jobs
@@ -41,6 +43,7 @@ export class Worker {
       attempts: 0,
       maxAttempts: 3,
       createdAt: new Date(),
+      history: [],
     };
 
     if (!this.queues.has(queueName)) {
@@ -60,7 +63,15 @@ export class Worker {
   }
 
   private startPolling(): void {
-    setInterval(() => this.poll(), this.pollInterval);
+    this.pollTimer = setInterval(() => this.poll(), this.pollInterval);
+  }
+
+  stopPolling(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+      logger.info('Worker polling stopped');
+    }
   }
 
   private async poll(): Promise<void> {
@@ -85,17 +96,24 @@ export class Worker {
         job.status = 'processing';
         job.startedAt = new Date();
         job.attempts++;
+        job.history.push({ status: 'processing', timestamp: new Date() });
         
         await processor(job.data);
         
         job.status = 'completed';
         job.completedAt = new Date();
+        job.history.push({ status: 'completed', timestamp: new Date() });
         
         logger.info({ jobId: job.id, queueName }, 'Job completed');
       } catch (error) {
         job.status = 'failed';
         job.failedAt = new Date();
         job.error = error instanceof Error ? error.message : String(error);
+        job.history.push({ 
+          status: 'failed', 
+          timestamp: new Date(), 
+          error: job.error 
+        });
         
         logger.error({ jobId: job.id, queueName, error }, 'Job failed');
         
@@ -105,7 +123,7 @@ export class Worker {
           job.startedAt = undefined;
           job.completedAt = undefined;
           job.failedAt = undefined;
-          job.error = undefined;
+          job.history.push({ status: 'retry_pending', timestamp: new Date() });
         }
       }
       

@@ -4,6 +4,7 @@ CREATE TYPE user_role AS ENUM ('USER', 'AGENT', 'ADMIN');
 CREATE TYPE trip_status AS ENUM ('DRAFT', 'PLANNED', 'BOOKED', 'COMPLETED', 'CANCELLED');
 CREATE TYPE item_type AS ENUM ('HOTEL', 'FLIGHT', 'ACTIVITY', 'TRANSPORT', 'OTHER');
 CREATE TYPE item_status AS ENUM ('PENDING', 'RESERVED', 'CONFIRMED', 'CANCELLED');
+CREATE TYPE provider_type AS ENUM ('HOTEL', 'ACTIVITY', 'FLIGHT', 'TRANSPORT');
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -21,7 +22,8 @@ CREATE TABLE sessions (
     token VARCHAR(255) UNIQUE NOT NULL,
     refresh_token VARCHAR(255) UNIQUE NOT NULL,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE trips (
@@ -80,6 +82,29 @@ CREATE TABLE price_alerts (
     currency VARCHAR(3) DEFAULT 'USD',
     is_active BOOLEAN DEFAULT true,
     notified_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE providers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) UNIQUE NOT NULL,
+    type provider_type NOT NULL,
+    api_key VARCHAR(255),
+    secret VARCHAR(255),
+    base_url VARCHAR(500),
+    is_active BOOLEAN DEFAULT true,
+    config JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE cache_entries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    key VARCHAR(255) UNIQUE NOT NULL,
+    value JSONB NOT NULL,
+    ttl INTEGER NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -89,3 +114,8 @@ CREATE INDEX idx_search_history_user_id ON search_history(user_id);
 CREATE INDEX idx_search_history_created_at ON search_history(created_at);
 CREATE INDEX idx_price_alerts_user_id ON price_alerts(user_id);
 CREATE INDEX idx_price_alerts_destination ON price_alerts(destination, is_active);
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_token ON sessions(token);
+CREATE INDEX idx_cache_entries_key ON cache_entries(key);
+CREATE INDEX idx_cache_entries_expires_at ON cache_entries(expires_at);
+CREATE INDEX idx_providers_name ON providers(name);

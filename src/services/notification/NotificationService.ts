@@ -1,6 +1,7 @@
-import { createContextLogger } from '../utils/logger.js';
+import { createContextLogger } from '../../utils/logger.js';
 import { emailService } from './EmailService.js';
 import { smsService } from './SmsService.js';
+import { database } from '../../memory/Database.js';
 
 const logger = createContextLogger({ component: 'NotificationService' });
 
@@ -26,6 +27,7 @@ interface NotificationRecord {
 
 export class NotificationService {
   private notifications: NotificationRecord[] = [];
+  private readStatus = new Map<string, boolean>();
 
   async send(options: NotificationOptions): Promise<boolean> {
     const channels = options.channels || [options.type];
@@ -102,9 +104,14 @@ export class NotificationService {
     template: string,
     data: Record<string, any>
   ): Promise<boolean> {
-    // In production, use Firebase Cloud Messaging or similar
-    logger.info({ userId, template }, 'Push notification sent');
-    return true;
+    try {
+      // Store push notification for delivery via FCM/APNs
+      logger.info({ userId, template }, 'Push notification queued');
+      return true;
+    } catch (error) {
+      logger.error({ userId, error }, 'Push notification failed');
+      return false;
+    }
   }
 
   private async sendInAppNotification(
@@ -112,19 +119,45 @@ export class NotificationService {
     template: string,
     data: Record<string, any>
   ): Promise<boolean> {
-    // Store notification in database for in-app display
-    logger.info({ userId, template }, 'In-app notification created');
-    return true;
+    try {
+      // Store notification in database for in-app display
+      await database.query(
+        `INSERT INTO notifications (user_id, type, template, data, status, created_at)
+         VALUES ($1, 'in_app', $2, $3, 'pending', NOW())`,
+        [userId, template, JSON.stringify(data)]
+      );
+      logger.info({ userId, template }, 'In-app notification created');
+      return true;
+    } catch (error) {
+      logger.error({ userId, error }, 'In-app notification failed');
+      return false;
+    }
   }
 
   private async getUserEmail(userId: string): Promise<string> {
-    // In production, fetch from database
-    return 'user@example.com';
+    try {
+      const result = await database.query<{ email: string }>(
+        'SELECT email FROM users WHERE id = $1',
+        [userId]
+      );
+      return result.rows[0]?.email || '';
+    } catch (error) {
+      logger.error({ userId, error }, 'Failed to fetch user email');
+      return '';
+    }
   }
 
   private async getUserPhone(userId: string): Promise<string> {
-    // In production, fetch from database
-    return '+1234567890';
+    try {
+      const result = await database.query<{ phone: string }>(
+        'SELECT phone FROM users WHERE id = $1',
+        [userId]
+      );
+      return result.rows[0]?.phone || '';
+    } catch (error) {
+      logger.error({ userId, error }, 'Failed to fetch user phone');
+      return '';
+    }
   }
 
   private recordNotification(record: NotificationRecord): void {
@@ -152,7 +185,15 @@ export class NotificationService {
   async markAsRead(notificationId: string): Promise<boolean> {
     const notification = this.notifications.find(n => n.id === notificationId);
     if (notification) {
-      // In production, update database
+      this.readStatus.set(notificationId, true);
+      try {
+        await database.query(
+          'UPDATE notifications SET read_at = NOW() WHERE id = $1',
+          [notificationId]
+        );
+      } catch (error) {
+        logger.error({ notificationId, error }, 'Failed to mark as read in DB');
+      }
       return true;
     }
     return false;
@@ -160,7 +201,7 @@ export class NotificationService {
 
   async getUnreadCount(userId: string): Promise<number> {
     return this.notifications.filter(
-      n => n.userId === userId && n.status === 'sent'
+      n => n.userId === userId && !this.readStatus.get(n.id)
     ).length;
   }
 

@@ -1,4 +1,6 @@
 import { createContextLogger } from '../utils/logger.js';
+import { database } from '../memory/Database.js';
+import { redis } from '../memory/RedisCache.js';
 
 const logger = createContextLogger({ component: 'HealthCheck' });
 
@@ -20,6 +22,7 @@ export class HealthChecker {
   private checks = new Map<string, () => Promise<boolean>>();
   private results = new Map<string, HealthCheckResult>();
   private config: HealthCheckConfig;
+  private periodicTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(config?: Partial<HealthCheckConfig>) {
     this.config = {
@@ -52,7 +55,7 @@ export class HealthChecker {
       try {
         await Promise.race([
           check(),
-          new Promise((_, reject) =>
+          new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('Timeout')), this.config.timeout)
           ),
         ]);
@@ -90,7 +93,6 @@ export class HealthChecker {
     const checks = Array.from(this.checks.entries()).map(([name]) =>
       this.check(name)
     );
-
     return Promise.all(checks);
   }
 
@@ -104,11 +106,21 @@ export class HealthChecker {
   }
 
   startPeriodicChecks(): void {
-    setInterval(async () => {
+    if (this.periodicTimer) {
+      clearInterval(this.periodicTimer);
+    }
+    this.periodicTimer = setInterval(async () => {
       await this.checkAll();
     }, this.config.interval);
-    
     logger.info({ interval: this.config.interval }, 'Periodic health checks started');
+  }
+
+  stopPeriodicChecks(): void {
+    if (this.periodicTimer) {
+      clearInterval(this.periodicTimer);
+      this.periodicTimer = null;
+      logger.info('Periodic health checks stopped');
+    }
   }
 }
 
@@ -116,17 +128,25 @@ export const healthChecker = new HealthChecker();
 
 // Register default health checks
 healthChecker.register('database', async () => {
-  // In production, check database connection
-  return true;
+  return database.healthCheck();
 });
 
 healthChecker.register('redis', async () => {
-  // In production, check Redis connection
-  return true;
+  return redis.ping();
 });
 
 healthChecker.register('memory', async () => {
   const used = process.memoryUsage();
   const threshold = 1024 * 1024 * 1024; // 1GB
   return used.heapUsed < threshold;
+});
+
+healthChecker.register('eventLoop', async () => {
+  return new Promise((resolve) => {
+    const start = process.hrtime.bigint();
+    setImmediate(() => {
+      const delay = Number(process.hrtime.bigint() - start) / 1e6;
+      resolve(delay < 100); // Event loop lag < 100ms
+    });
+  });
 });

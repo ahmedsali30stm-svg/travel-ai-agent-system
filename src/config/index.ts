@@ -12,13 +12,17 @@ export const config = {
   },
   database: {
     url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/travel_ai',
+    ssl: process.env.DATABASE_SSL === 'true',
+    maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || '20', 10),
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
     password: process.env.REDIS_PASSWORD || undefined,
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'default-secret-change-me',
+    secret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' 
+      ? (() => { throw new Error('JWT_SECRET must be set in production'); })() 
+      : 'dev-secret-not-for-production'),
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   openai: {
