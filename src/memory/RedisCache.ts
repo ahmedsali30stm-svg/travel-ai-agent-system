@@ -22,11 +22,16 @@ export class RedisCache {
       this.client = new Redis(config.redis.url, {
         password: config.redis.password || undefined,
         retryStrategy(times: number) {
-          const delay = Math.min(times * 50, 2000);
+          if (times > 5) {
+            logger.warn('Redis: max retries reached, giving up');
+            return null;
+          }
+          const delay = Math.min(times * 200, 2000);
           return delay;
         },
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: 1,
         lazyConnect: true,
+        enableOfflineQueue: false,
       });
 
       this.client.on('error', (err) => {

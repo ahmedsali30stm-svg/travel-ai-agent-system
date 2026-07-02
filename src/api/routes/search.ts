@@ -21,7 +21,7 @@ const searchSchema = z.object({
     cancellationPolicy: z.enum(['free', 'non_refundable', 'flexible']).optional(),
   }).optional(),
   providers: z.array(z.string()).optional(),
-  sortBy: z.enum(['price', 'rating', 'distance', 'popularity']).optional().default('relevance'),
+  sortBy: z.enum(['price', 'rating', 'distance', 'popularity', 'relevance']).optional().default('relevance'),
   page: z.number().min(1).optional().default(1),
   limit: z.number().min(1).max(50).optional().default(20),
 });

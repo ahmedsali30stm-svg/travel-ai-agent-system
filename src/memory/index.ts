@@ -52,28 +52,28 @@ export interface MemoryIndex {
 }
 
 class MemoryManager implements MemoryIndex {
-  cache = {
+  cache: MemoryIndex['cache'] = {
     get: memoryEngine.get.bind(memoryEngine),
     set: memoryEngine.set.bind(memoryEngine),
     delete: memoryEngine.delete.bind(memoryEngine),
     exists: memoryEngine.exists.bind(memoryEngine),
   };
 
-  state = {
+  state: MemoryIndex['state'] = {
     get: stateManager.get.bind(stateManager),
     set: stateManager.set.bind(stateManager),
     delete: stateManager.delete.bind(stateManager),
     watch: stateManager.watch.bind(stateManager),
   };
 
-  events = {
+  events: MemoryIndex['events'] = {
     on: eventManager.on.bind(eventManager),
     once: eventManager.once.bind(eventManager),
     emit: eventManager.emit.bind(eventManager),
     off: eventManager.off.bind(eventManager),
   };
 
-  redis = {
+  redis: MemoryIndex['redis'] = {
     get: redis.get.bind(redis),
     set: redis.set.bind(redis),
     del: redis.del.bind(redis),

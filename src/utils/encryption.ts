@@ -17,7 +17,7 @@ export class Encryption {
       const key = this.deriveKey(secret);
       const iv = crypto.randomBytes(IV_LENGTH);
 
-      const cipher = crypto.createCipheriv(this.algorithm, key, iv);
+      const cipher = crypto.createCipheriv(this.algorithm, key, iv) as crypto.CipherGCM;
       const encrypted = Buffer.concat([cipher.update(data, 'utf8'), cipher.final()]);
       const tag = cipher.getAuthTag();
 
@@ -38,7 +38,7 @@ export class Encryption {
       const tag = buffer.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
       const encrypted = buffer.subarray(IV_LENGTH + TAG_LENGTH);
 
-      const decipher = crypto.createDecipheriv(this.algorithm, key, iv);
+      const decipher = crypto.createDecipheriv(this.algorithm, key, iv) as crypto.DecipherGCM;
       decipher.setAuthTag(tag);
 
       const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);

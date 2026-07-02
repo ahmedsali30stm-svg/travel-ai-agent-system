@@ -67,7 +67,7 @@ export abstract class SearchProvider {
       this.requestCount++;
       this.lastRequestTime = Date.now();
       
-      return await response.json();
+      return await response.json() as T;
     } catch (error) {
       logger.error({ provider: this.config.name, endpoint, error }, 'Request failed');
       throw error;

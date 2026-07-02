@@ -66,19 +66,27 @@ app.use(errorHandler);
 // Start server
 async function bootstrap() {
   try {
-    // Initialize database connection
-    await database.connect();
-    logger.info('Database connected');
+    // Initialize database connection (graceful degradation)
+    try {
+      await database.connect();
+      logger.info('Database connected');
+    } catch (error) {
+      logger.warn('Database unavailable - running without persistence');
+    }
 
-    // Initialize Redis
-    await redis.connect();
-    logger.info('Redis connected');
+    // Initialize Redis (graceful degradation)
+    try {
+      await redis.connect();
+      logger.info('Redis connected');
+    } catch (error) {
+      logger.warn('Redis unavailable - running without cache');
+    }
 
     app.listen(config.app.port, () => {
-      logger.info(`🚀 Server running on port ${config.app.port}`);
-      logger.info(`📊 Environment: ${config.app.env}`);
-      logger.info(`🔗 API: http://localhost:${config.app.port}/api/${config.app.apiVersion}`);
-      logger.info(`❤️  Health: http://localhost:${config.app.port}/health`);
+      logger.info(`Server running on port ${config.app.port}`);
+      logger.info(`Environment: ${config.app.env}`);
+      logger.info(`API: http://localhost:${config.app.port}/api/${config.app.apiVersion}`);
+      logger.info(`Health: http://localhost:${config.app.port}/health`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
@@ -89,15 +97,15 @@ async function bootstrap() {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully...');
-  await database.disconnect();
-  await redis.disconnect();
+  try { await database.disconnect(); } catch {}
+  try { await redis.disconnect(); } catch {}
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received, shutting down gracefully...');
-  await database.disconnect();
-  await redis.disconnect();
+  try { await database.disconnect(); } catch {}
+  try { await redis.disconnect(); } catch {}
   process.exit(0);
 });
 

@@ -174,7 +174,9 @@ export class SearchService {
   }
 
   async getSuggestions(query: string): Promise<string[]> {
-    // Implement autocomplete suggestions
+    if (query.length < 2) {
+      return [];
+    }
     const suggestions = [
       'Paris, France',
       'Paris Disney Resort',

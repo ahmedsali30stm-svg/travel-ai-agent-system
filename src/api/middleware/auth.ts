@@ -121,7 +121,7 @@ export const generateToken = (user: AuthUser): string => {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role, permissions: user.permissions },
     config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
+    { expiresIn: config.jwt.expiresIn as unknown as number }
   );
 };
 

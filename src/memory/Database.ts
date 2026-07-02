@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { config } from '../config/index.js';
 import { createContextLogger } from '../utils/logger.js';
 
@@ -35,7 +35,7 @@ export class Database {
         connectionTimeoutMillis: 5000,
       });
 
-      this.pool.on('error', (err) => {
+      this.pool.on('error', (err: Error) => {
         logger.error('Unexpected database pool error:', err);
       });
 
@@ -69,7 +69,7 @@ export class Database {
     }
   }
 
-  async query<T = any>(
+  async query<T extends QueryResultRow = any>(
     text: string,
     params?: any[]
   ): Promise<QueryResult<T>> {
@@ -86,8 +86,8 @@ export class Database {
     }
   }
 
-  async transaction<T>(
-    callback: (query: <R>(text: string, params?: any[]) => Promise<QueryResult<R>>) => Promise<T>
+  async transaction<T extends QueryResultRow = any>(
+    callback: (query: <R extends QueryResultRow>(text: string, params?: any[]) => Promise<QueryResult<R>>) => Promise<T>
   ): Promise<T> {
     if (!this.isConnected || !this.pool) {
       throw new Error('Database not connected');
@@ -99,8 +99,8 @@ export class Database {
       await client.query('BEGIN');
 
       const result = await callback(
-        <R>(text: string, params?: any[]) =>
-          client.query<R>(text, params).then(res => ({
+        <R extends QueryResultRow>(text: string, params?: any[]) =>
+          client.query<R>(text, params).then((res: import('pg').QueryResult<R>) => ({
             rows: res.rows,
             rowCount: res.rowCount,
             command: res.command,

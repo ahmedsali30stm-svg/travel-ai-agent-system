@@ -70,7 +70,7 @@ tripRoutes.get('/:tripId', async (req: Request, res: Response, next: NextFunctio
     const trip = await tripService.getTripById(tripId, req.user!.id);
     
     if (!trip) {
-      throw new NotFoundError('Trip', tripId);
+      throw new NotFoundError(`Trip ${tripId} not found`);
     }
     
     res.json({
