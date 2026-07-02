@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../../utils/logger.js';
+import { createContextLogger } from '../../utils/logger.js';
+
+const logger = createContextLogger({ component: 'RequestLogger' });
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();

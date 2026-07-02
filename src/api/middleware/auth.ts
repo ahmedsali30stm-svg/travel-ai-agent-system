@@ -1,13 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../../config/index.js';
-import { UnauthorizedError } from './errorHandler.js';
-import { logger } from '../../utils/logger.js';
+import { UnauthorizedError, ForbiddenError } from './errorHandler.js';
+import { createContextLogger } from '../../utils/logger.js';
+
+const logger = createContextLogger({ component: 'AuthMiddleware' });
 
 export interface AuthUser {
   id: string;
   email: string;
   role: 'user' | 'agent' | 'admin';
+  permissions?: string[];
 }
 
 declare global {
@@ -18,7 +21,7 @@ declare global {
   }
 }
 
-export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     
@@ -60,17 +63,84 @@ export const authorize = (...roles: AuthUser['role'][]) => {
         actualRole: req.user.role,
       }, 'Authorization failed');
 
-      return next(new UnauthorizedError('Insufficient permissions'));
+      return next(new ForbiddenError('Insufficient permissions'));
     }
 
     next();
   };
 };
 
+export const requirePermission = (...permissions: string[]) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new UnauthorizedError());
+    }
+
+    const userPermissions = req.user.permissions || [];
+    const hasPermission = permissions.every(p => userPermissions.includes(p));
+
+    if (!hasPermission) {
+      logger.warn({
+        userId: req.user.id,
+        requiredPermissions: permissions,
+        actualPermissions: userPermissions,
+      }, 'Permission check failed');
+
+      return next(new ForbiddenError('Insufficient permissions'));
+    }
+
+    next();
+  };
+};
+
+export const optionalAuth = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    if (!token) {
+      return next();
+    }
+
+    const decoded = jwt.verify(token, config.jwt.secret) as AuthUser;
+    req.user = decoded;
+    
+    next();
+  } catch (error) {
+    // Ignore auth errors for optional auth
+    next();
+  }
+};
+
 export const generateToken = (user: AuthUser): string => {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role: user.role, permissions: user.permissions },
     config.jwt.secret,
     { expiresIn: config.jwt.expiresIn }
   );
+};
+
+export const generateRefreshToken = (user: AuthUser): string => {
+  return jwt.sign(
+    { id: user.id, type: 'refresh' },
+    config.jwt.secret,
+    { expiresIn: '30d' }
+  );
+};
+
+export const verifyRefreshToken = (token: string): { id: string } | null => {
+  try {
+    const decoded = jwt.verify(token, config.jwt.secret) as { id: string; type: string };
+    if (decoded.type !== 'refresh') {
+      return null;
+    }
+    return { id: decoded.id };
+  } catch {
+    return null;
+  }
 };
